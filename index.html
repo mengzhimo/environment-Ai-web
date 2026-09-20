@@ -1,0 +1,1745 @@
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>城市生态环境 AI 智慧驾驶舱 · 尊享版</title>
+<style>
+/* ================= 基础 ================= */
+*{margin:0;padding:0;box-sizing:border-box}
+@property --a{syntax:'<angle>';initial-value:0deg;inherits:false}
+html,body{width:100%;height:100%;overflow:hidden;background:#02060f;
+  font-family:'Microsoft YaHei','PingFang SC','Segoe UI',sans-serif}
+
+#screen{position:absolute;left:50%;top:50%;width:1920px;height:1080px;
+  transform:translate(-50%,-50%);transform-origin:center;
+  background:
+    radial-gradient(1200px 700px at 50% 30%,rgba(18,58,130,.34),transparent 62%),
+    radial-gradient(900px 600px at 8% 92%,rgba(0,110,200,.12),transparent 60%),
+    radial-gradient(900px 600px at 92% 88%,rgba(0,110,220,.12),transparent 60%),
+    linear-gradient(180deg,#071833 0%,#050d1e 55%,#03081a 100%);
+  display:flex;flex-direction:column;padding:0 18px 16px;user-select:none}
+#screen::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:1;
+  background-image:
+    linear-gradient(rgba(0,200,255,.05) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,200,255,.05) 1px,transparent 1px),
+    linear-gradient(rgba(0,200,255,.022) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,200,255,.022) 1px,transparent 1px);
+  background-size:160px 160px,160px 160px,40px 40px,40px 40px}
+#screen::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:1;
+  background:radial-gradient(120% 92% at 50% 45%,transparent 55%,rgba(1,4,12,.68) 100%)}
+header,.metrics,main,footer{position:relative;z-index:2}
+#particles{position:absolute;inset:0;z-index:0;pointer-events:none}
+#screen.pre>header,#screen.pre>.metrics,#screen.pre>main,#screen.pre>footer{visibility:hidden}
+#screen.pre .reveal{animation-play-state:paused}
+.aurora{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.aurora i{position:absolute;border-radius:50%;filter:blur(60px);opacity:.5;mix-blend-mode:screen}
+.aurora .a1{width:900px;height:460px;left:-8%;top:-14%;
+  background:radial-gradient(closest-side,rgba(0,120,255,.17),transparent);animation:aur1 19s ease-in-out infinite alternate}
+.aurora .a2{width:760px;height:420px;right:-6%;bottom:-10%;
+  background:radial-gradient(closest-side,rgba(0,160,255,.14),transparent);animation:aur2 23s ease-in-out infinite alternate}
+.aurora .a3{width:600px;height:340px;left:38%;top:34%;
+  background:radial-gradient(closest-side,rgba(50,120,255,.11),transparent);animation:aur1 27s ease-in-out infinite alternate-reverse}
+@keyframes aur1{to{transform:translate(130px,70px) scale(1.16)}}
+@keyframes aur2{to{transform:translate(-110px,-60px) scale(1.12)}}
+.s-corner{position:absolute;width:22px;height:22px;z-index:3;pointer-events:none;
+  filter:drop-shadow(0 0 4px rgba(0,200,255,.5))}
+.s-corner.tl{left:6px;top:6px;border-left:2px solid rgba(0,200,255,.55);border-top:2px solid rgba(0,200,255,.55)}
+.s-corner.tr{right:6px;top:6px;border-right:2px solid rgba(0,200,255,.55);border-top:2px solid rgba(0,200,255,.55)}
+.s-corner.bl{left:6px;bottom:6px;border-left:2px solid rgba(0,200,255,.55);border-bottom:2px solid rgba(0,200,255,.55)}
+.s-corner.br{right:6px;bottom:6px;border-right:2px solid rgba(0,200,255,.55);border-bottom:2px solid rgba(0,200,255,.55)}
+.s-meta{position:absolute;bottom:3px;font-family:Consolas,monospace;font-size:10px;
+  color:rgba(95,140,181,.8);letter-spacing:1px;z-index:3;pointer-events:none}
+.s-meta.l{left:36px}.s-meta.r{right:36px}
+/* ================= HUD 面板（静态角括号） ================= */
+.panel{position:relative;border:1px solid rgba(0,200,255,.22);
+  box-shadow:inset 0 0 30px rgba(0,180,255,.05),inset 0 1px 0 rgba(120,210,255,.12),
+    0 0 24px rgba(0,20,40,.6);
+  transition:border-color .3s,box-shadow .3s;
+  background:
+    linear-gradient(#4dc8ff,#4dc8ff) left 0 top 0 / 16px 2px,
+    linear-gradient(#4dc8ff,#4dc8ff) left 0 top 0 / 2px 16px,
+    linear-gradient(#4dc8ff,#4dc8ff) right 0 top 0 / 16px 2px,
+    linear-gradient(#4dc8ff,#4dc8ff) right 0 top 0 / 2px 16px,
+    linear-gradient(#4dc8ff,#4dc8ff) left 0 bottom 0 / 16px 2px,
+    linear-gradient(#4dc8ff,#4dc8ff) left 0 bottom 0 / 2px 16px,
+    linear-gradient(#4dc8ff,#4dc8ff) right 0 bottom 0 / 16px 2px,
+    linear-gradient(#4dc8ff,#4dc8ff) right 0 bottom 0 / 2px 16px,
+    radial-gradient(420px 70px at 50% 0,rgba(0,180,255,.07),transparent),
+    linear-gradient(180deg,rgba(11,32,64,.78),rgba(8,20,41,.92));
+  background-repeat:no-repeat}
+.panel:hover{border-color:rgba(0,200,255,.5);
+  box-shadow:0 0 26px rgba(0,180,255,.14),inset 0 0 30px rgba(0,180,255,.07),
+    inset 0 1px 0 rgba(120,210,255,.18)}
+.p-title{display:flex;align-items:center;gap:8px;font-size:15px;letter-spacing:2px;
+  color:#e8f4ff;padding:11px 14px 9px;flex:none;
+  background:linear-gradient(90deg,rgba(0,180,255,.10),transparent 72%)}
+.p-title::before{content:'';width:5px;height:16px;flex:none;border-radius:1px;
+  background:linear-gradient(180deg,#00d4ff,#0088ff);box-shadow:0 0 10px #00a8ff}
+.p-title::after{content:'';flex:1;height:1px;margin-left:6px;
+  background:linear-gradient(90deg,rgba(0,200,255,.55),rgba(0,200,255,.08) 60%,transparent)}
+.p-title .en{font-size:9px;color:#42688f;letter-spacing:1px;margin-left:2px;font-family:Consolas,monospace}
+.p-live{display:inline-flex;align-items:center;gap:4px;font-size:9px;color:#57c8ff;
+  border:1px solid rgba(0,200,255,.35);padding:1px 7px;border-radius:8px;letter-spacing:1px}
+.p-live i{width:5px;height:5px;border-radius:50%;background:#00c8ff;
+  box-shadow:0 0 6px #00c8ff;animation:blink 1.2s infinite}
+/* ================= 顶栏 ================= */
+header{height:86px;display:flex;align-items:center;justify-content:center}
+.h-center-wrap{position:relative;display:flex;align-items:center}
+.h-center{text-align:center;position:relative;padding:0 34px}
+.h-center::before{content:'';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:660px;height:64px;background:radial-gradient(closest-side,rgba(0,180,255,.18),transparent);
+  filter:blur(6px);pointer-events:none}
+h1{position:relative;font-size:33px;font-weight:800;letter-spacing:10px;
+  background:linear-gradient(180deg,#ffffff 18%,#c4e8ff 58%,#6fc8ff 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 16px rgba(0,180,255,.55))}
+.h-sub{position:relative;margin-top:5px;font-size:11px;letter-spacing:6px;color:#5b8cb8}
+.wing{flex:none;opacity:.95}
+.wing.wr{transform:scaleX(-1)}
+.hexa{position:absolute;top:50%;width:44px;height:44px;margin-top:-22px}
+.hx-l{left:-66px}.hx-r{right:-66px}
+.hexa .out{fill:rgba(0,180,255,.05);stroke:rgba(0,200,255,.55);stroke-width:1.2}
+.hexa .in{fill:none;stroke:rgba(0,200,255,.32);stroke-width:1}
+.h-side{position:absolute;top:50%;transform:translateY(-50%);font-size:12px;color:#7ba6c9}
+.h-side.left{left:26px}
+.h-side.right{right:26px;text-align:right}
+.h-tag{border:1px solid rgba(0,200,255,.32);background:rgba(0,180,255,.07);
+  padding:3px 11px;border-radius:3px;letter-spacing:2px;color:#9fd8ff;
+  box-shadow:inset 0 0 10px rgba(0,180,255,.08);transition:.3s}
+.h-tag:hover{box-shadow:0 0 12px rgba(0,180,255,.35);color:#eaffff}
+button.h-tag{cursor:pointer;font-family:inherit;font-size:12px}
+button.h-tag:hover{background:rgba(0,180,255,.2)}
+.h-note{margin-top:7px;font-size:10px;color:#4f7ca6;letter-spacing:1px}
+.h-weather{margin-bottom:5px}
+.h-time{font-family:Consolas,monospace;font-size:14px;color:#d5ecff;letter-spacing:1px;
+  text-shadow:0 0 8px rgba(0,200,255,.4)}
+.h-status{margin-top:5px;font-size:10px;color:#57c8ff;letter-spacing:1px;
+  display:flex;align-items:center;gap:5px;justify-content:flex-end}
+.h-status i{width:6px;height:6px;border-radius:50%;background:#00c8ff;
+  box-shadow:0 0 8px #00c8ff;animation:blink 1.4s infinite}
+.h-status b{color:#9fe4ff;font-weight:700}
+.h-sep{position:absolute;left:0;right:0;bottom:5px;height:2px}
+.h-sep::before{content:'';position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent,rgba(0,200,255,.5) 18%,rgba(0,200,255,.8) 50%,rgba(0,200,255,.5) 82%,transparent)}
+.h-sep .dia{position:absolute;left:50%;top:50%;width:8px;height:8px;
+  transform:translate(-50%,-50%) rotate(45deg);
+  border:1px solid rgba(0,200,255,.85);background:rgba(0,180,255,.15);
+  box-shadow:0 0 10px rgba(0,200,255,.7)}
+/* ================= 指标卡 ================= */
+.metrics{height:104px;margin:12px 0 14px;display:flex;gap:14px}
+.metric{flex:1;position:relative;display:flex;align-items:center;gap:13px;padding:0 15px;
+  transition:transform .3s,box-shadow .3s}
+.metric:hover{transform:translateY(-3px)}
+.metric::after{content:'';position:absolute;left:12%;right:12%;bottom:0;height:2px;
+  background:linear-gradient(90deg,transparent,rgba(0,200,255,.55),transparent);opacity:.55}
+.m-icon{position:relative;width:54px;height:54px;flex:none;display:flex;align-items:center;
+  justify-content:center;border-radius:12px;
+  background:radial-gradient(circle at 50% 40%,rgba(0,180,255,.14),rgba(0,180,255,.04));
+  border:1px solid rgba(0,200,255,.3);box-shadow:inset 0 0 14px rgba(0,180,255,.12)}
+.m-glyph{width:24px;height:24px;stroke:#5cd8ff;fill:none;stroke-width:1.6;
+  stroke-linecap:round;stroke-linejoin:round;
+  filter:drop-shadow(0 0 5px rgba(0,190,255,.7))}
+.m-label{font-size:12px;color:#7ba6c9;letter-spacing:1px}
+.m-label .en{font-size:8px;color:#3e6a93;margin-left:4px;font-family:Consolas,monospace}
+.m-val{display:flex;align-items:baseline;gap:6px;margin:2px 0}
+.num{font-family:Consolas,'DIN Alternate',monospace;font-size:33px;font-weight:700;
+  color:#25d8ff;font-variant-numeric:tabular-nums;
+  text-shadow:0 0 8px rgba(0,190,255,.85),0 0 26px rgba(0,180,255,.4)}
+.m-unit{font-size:11px;color:#5f8cb5}
+.m-cmp{font-size:11px;display:inline-flex;align-items:center;gap:4px;
+  padding:1px 8px;border-radius:9px}
+.m-cmp.good{color:#4fd0ff;background:rgba(0,180,255,.08);border:1px solid rgba(0,190,255,.3)}
+.m-cmp.bad{color:#ff9d9d;background:rgba(255,92,92,.08);border:1px solid rgba(255,92,92,.32)}
+.m-cmp.flat{color:#8fb6d8;background:rgba(0,180,255,.06);border:1px solid rgba(0,190,255,.22)}
+.m-spark{position:absolute;right:12px;bottom:11px;width:72px;height:26px;opacity:.95}
+.m-spark .s-line{fill:none;stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round}
+.m-spark .s-fill{opacity:.22}
+/* ================= 主体三栏 ================= */
+main{flex:1;min-height:0;display:grid;grid-template-columns:360px 1fr 380px;gap:14px;margin-bottom:14px}
+.left-panel{display:flex;flex-direction:column}
+.chat-box{flex:1;min-height:0;overflow-y:auto;padding:12px}
+.chat-box::-webkit-scrollbar{width:4px}
+.chat-box::-webkit-scrollbar-thumb{background:rgba(0,200,255,.3);border-radius:2px}
+.msg{display:flex;gap:8px;margin-bottom:12px;animation:msgIn .35s ease}
+.msg.sys{justify-content:center}
+.msg.sys .bubble{background:none;border:none;color:#5f8cb5;font-size:11px;text-align:center}
+@keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1}}
+.avatar{width:30px;height:30px;flex:none;border-radius:8px;display:flex;
+  align-items:center;justify-content:center}
+.av-ai{background:rgba(0,180,255,.12);border:1px solid rgba(0,200,255,.4);
+  box-shadow:0 0 10px rgba(0,180,255,.25)}
+.av-user{background:rgba(0,160,255,.1);border:1px solid rgba(0,190,255,.35)}
+.bubble{max-width:82%;padding:9px 12px;border-radius:8px;font-size:13px;line-height:1.75}
+.msg.ai .bubble{background:linear-gradient(160deg,rgba(0,180,255,.10),rgba(0,180,255,.03));
+  border:1px solid rgba(0,200,255,.3);color:#d5ecff;border-top-left-radius:2px}
+.msg.user{flex-direction:row-reverse}
+.msg.user .bubble{background:linear-gradient(160deg,rgba(0,170,255,.13),rgba(0,170,255,.03));
+  border:1px solid rgba(0,190,255,.32);color:#eaf7ff;border-top-right-radius:2px}
+.cursor{display:inline-block;width:2px;height:14px;background:#00d4ff;margin-left:2px;
+  vertical-align:-2px;animation:blinkC .8s steps(1) infinite;
+  box-shadow:0 0 6px #00d4ff}
+@keyframes blinkC{50%{opacity:0}}
+.dots i{display:inline-block;width:5px;height:5px;border-radius:50%;background:#00d4ff;
+  margin:0 2px;animation:jump 1s infinite;box-shadow:0 0 5px #00d4ff}
+.dots i:nth-child(2){animation-delay:.15s}.dots i:nth-child(3){animation-delay:.3s}
+@keyframes jump{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-4px);opacity:1}}
+.tlabel{color:#7ba6c9;font-size:11px;margin-left:6px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;padding:10px 12px;
+  border-top:1px solid rgba(0,200,255,.12)}
+.chip{font-size:12px;color:#9fd8ff;border:1px solid rgba(0,200,255,.35);
+  background:rgba(0,180,255,.06);padding:6px 11px;border-radius:14px;cursor:pointer;
+  transition:.25s;font-family:inherit}
+.chip::before{content:'▸ ';color:#00d4ff}
+.chip:hover{background:rgba(0,180,255,.2);color:#fff;
+  box-shadow:0 0 12px rgba(0,190,255,.5);transform:translateY(-1px)}
+.chip.off{opacity:.4;pointer-events:none}
+.chat-input{display:flex;gap:8px;padding:10px 12px;border-top:1px solid rgba(0,200,255,.12)}
+.chat-input input{flex:1;background:rgba(0,180,255,.05);border:1px solid rgba(0,200,255,.3);
+  color:#d5ecff;padding:8px 10px;border-radius:6px;outline:none;font-size:12px;
+  font-family:inherit;user-select:text;transition:.3s}
+.chat-input input:focus{border-color:rgba(0,200,255,.75);box-shadow:0 0 14px rgba(0,180,255,.25)}
+.chat-input input::placeholder{color:#4f7ca6}
+.send-btn{background:linear-gradient(135deg,#0088ff,#00d4ff);color:#03122b;border:none;
+  padding:0 16px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;
+  letter-spacing:2px;font-family:inherit;box-shadow:0 0 12px rgba(0,140,255,.4);transition:.25s}
+.send-btn:hover{box-shadow:0 0 20px rgba(0,190,255,.6)}
+/* --- 中：地图 --- */
+.map-panel{display:flex;flex-direction:column}
+.map-body{flex:1;min-height:0;position:relative;cursor:grab;touch-action:none}
+.map-body.dragging{cursor:grabbing}
+.map-body>svg{position:absolute;inset:0;width:100%;height:100%}
+.district{stroke:rgba(0,200,255,.4);stroke-width:1.2;cursor:pointer;
+  transition:fill .8s,stroke .8s,filter .8s}
+.district:hover{fill:rgba(0,200,255,.15)!important;filter:drop-shadow(0 0 8px rgba(0,200,255,.5))}
+.district.hot{fill:rgba(255,92,92,.18)!important;stroke:#ff5c5c;stroke-width:1.6;
+  filter:drop-shadow(0 0 12px rgba(255,92,92,.6));animation:hotPulse 1.6s ease-in-out infinite}
+@keyframes hotPulse{50%{stroke-opacity:.4}}
+.d-label{fill:rgba(215,240,255,.9);font-size:13px;letter-spacing:2px;
+  paint-order:stroke;stroke:rgba(5,11,24,.8);stroke-width:3px;pointer-events:none}
+#mapZoom{transform-box:view-box}
+.poi .core{fill:#fff;filter:drop-shadow(0 0 4px rgba(255,255,255,.8))}
+.poi.sev-red .core{fill:#ff5c5c}.poi.sev-red .ripple{stroke:#ff5c5c}
+.poi.sev-orange .core{fill:#ffb800}.poi.sev-orange .ripple{stroke:#ffb800}
+.poi.sev-green .core{fill:#35c8ff}.poi.sev-green .ripple{stroke:#35c8ff}
+.poi.sev-cyan .core{fill:#00e5ff}.poi.sev-cyan .ripple{stroke:#00e5ff}
+.poi .halo{fill:none;stroke:rgba(255,255,255,.2);stroke-width:1}
+.poi .ripple{fill:none;stroke-width:1.5;opacity:0;
+  animation:ripple 2.4s ease-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes ripple{0%{transform:scale(.4);opacity:.9}100%{transform:scale(3.4);opacity:0}}
+.poi text{fill:#bfe0ff;font-size:13px;paint-order:stroke;
+  stroke:rgba(5,11,24,.85);stroke-width:3px;pointer-events:none}
+.radar-ring{fill:none;stroke:rgba(0,200,255,.22);stroke-width:1}
+.orbit-ring{fill:none;stroke:rgba(0,200,255,.16);stroke-width:1;stroke-dasharray:2 7}
+.orbit-ring.o2{stroke:rgba(0,180,255,.12)}
+.sat{fill:#9fdcff}.sat.s2{fill:#c4e8ff}
+.radar-label{fill:#9fd8ff;font-size:12px;paint-order:stroke;
+  stroke:rgba(5,11,24,.85);stroke-width:3px;pointer-events:none}
+.wind{fill:none;stroke:rgba(0,200,255,.28);stroke-width:1.5;
+  stroke-dasharray:4 120;animation:flow 6s linear infinite;pointer-events:none}
+@keyframes flow{to{stroke-dashoffset:-124}}
+.river-glow{fill:none;stroke:rgba(0,150,255,.16);stroke-width:34;stroke-linecap:round}
+.river-wide{fill:none;stroke:rgba(17,90,150,.4);stroke-width:26;stroke-linecap:round}
+.river-core{fill:none;stroke:url(#riverGrad);stroke-width:10;stroke-linecap:round;opacity:.9}
+.fl{fill:none;stroke:rgba(80,190,255,.35);stroke-width:1.1;stroke-dasharray:2 6;
+  animation:flyFlow 1.4s linear infinite}
+@keyframes flyFlow{to{stroke-dashoffset:-32}}
+.fd{fill:#cfeeff}.fd-halo{fill:rgba(80,190,255,.22)}
+#beams g{animation:beamPulse 2.4s ease-in-out infinite}
+@keyframes beamPulse{50%{opacity:.55}}
+.drone-t{fill:#ffe3a3;font-size:11px;paint-order:stroke;
+  stroke:rgba(5,11,24,.85);stroke-width:3px}
+.air-route{fill:none;stroke:rgba(255,215,106,.18);stroke-width:1;stroke-dasharray:4 6}
+#reticle.hidden{display:none}
+.ret-c1{fill:none;stroke:#ff5c5c;stroke-dasharray:5 7;stroke-width:1.4;filter:drop-shadow(0 0 5px rgba(255,92,92,.7))}
+.ret-c3{fill:none;stroke:rgba(255,92,92,.55);stroke-width:1;stroke-dasharray:2 10}
+.ret-c2{fill:rgba(255,92,92,.06);stroke:rgba(255,92,92,.5);stroke-width:1}
+.ret-t{stroke:#ff5c5c;stroke-width:1.6;filter:drop-shadow(0 0 4px rgba(255,92,92,.8))}
+#retLabel{fill:#ff8f8f;font-size:13px;letter-spacing:1px;text-anchor:middle;
+  paint-order:stroke;stroke:rgba(5,11,24,.85);stroke-width:3px}
+.map-cross{position:absolute;inset:0;z-index:5;pointer-events:none;opacity:0;transition:opacity .3s}
+.map-cross.on{opacity:1}
+.map-cross .v{position:absolute;top:0;bottom:0;left:var(--x,50%);width:1px;
+  background:linear-gradient(180deg,transparent,rgba(0,200,255,.45) 28%,rgba(0,200,255,.45) 72%,transparent)}
+.map-cross .h{position:absolute;left:0;right:0;top:var(--y,50%);height:1px;
+  background:linear-gradient(90deg,transparent,rgba(0,200,255,.45) 28%,rgba(0,200,255,.45) 72%,transparent)}
+.map-cross .dc{position:absolute;left:var(--x,50%);top:var(--y,50%);width:9px;height:9px;
+  margin:-4.5px 0 0 -4.5px;border-radius:50%;
+  border:1px solid rgba(0,200,255,.85);background:rgba(0,200,255,.2);
+  box-shadow:0 0 8px rgba(0,200,255,.6)}
+.map-cross .cc{position:absolute;left:calc(var(--x,50%) + 14px);top:calc(var(--y,50%) + 12px);
+  font-family:Consolas,monospace;font-size:10px;color:#9fd8ff;white-space:nowrap;
+  background:rgba(6,16,32,.88);border:1px solid rgba(0,200,255,.35);
+  padding:3px 9px;border-radius:3px}
+.map-cross .cc.flip{left:auto;right:calc(100% - var(--x,50%) + 14px)}
+.map-ctrl{position:absolute;left:14px;top:10px;display:flex;gap:6px;z-index:6}
+.map-ctrl button{width:27px;height:27px;background:rgba(8,21,41,.8);
+  border:1px solid rgba(0,200,255,.3);color:#9fd8ff;font-size:14px;border-radius:5px;
+  cursor:pointer;font-family:Consolas,monospace;transition:.25s;line-height:1}
+.map-ctrl button:hover{background:rgba(0,180,255,.2);color:#fff;
+  box-shadow:0 0 10px rgba(0,190,255,.4)}
+.map-legend{position:absolute;left:14px;bottom:12px;display:flex;gap:13px;align-items:center;
+  font-size:11px;color:#7ba6c9;background:rgba(8,21,41,.75);
+  border:1px solid rgba(0,200,255,.22);padding:6px 12px;border-radius:4px;
+  box-shadow:0 0 14px rgba(0,20,40,.5)}
+.map-legend i{display:inline-block;width:8px;height:8px;border-radius:50%;
+  margin-right:5px;vertical-align:-1px;box-shadow:0 0 5px currentColor}
+.lg-scale{font-family:Consolas,monospace;color:#5f8cb5;padding-left:12px;
+  border-left:1px solid rgba(0,200,255,.2)}
+.map-time{position:absolute;right:14px;top:10px;font-size:11px;color:#5f8cb5;
+  font-family:Consolas,monospace;background:rgba(8,21,41,.75);
+  border:1px solid rgba(0,200,255,.22);padding:4px 10px;border-radius:4px}
+/* 区级画像卡 */
+#districtCard{position:absolute;left:14px;bottom:46px;width:272px;padding:13px 14px;z-index:6;
+  animation:msgIn .35s ease}
+#districtCard.hidden{display:none}
+.dc-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.dc-name{font-size:17px;font-weight:700;color:#eaf7ff;letter-spacing:2px}
+.dc-rank{font-size:10px;color:#9fd8ff;border:1px solid rgba(0,200,255,.35);
+  background:rgba(0,180,255,.08);padding:2px 8px;border-radius:9px;white-space:nowrap}
+.dc-close{margin-left:auto;background:none;border:1px solid rgba(0,200,255,.3);color:#7ba6c9;
+  width:20px;height:20px;border-radius:4px;cursor:pointer;font-size:11px;line-height:1;flex:none}
+.dc-close:hover{color:#fff;border-color:rgba(0,200,255,.7)}
+.dc-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px}
+.dc-cell{background:rgba(0,180,255,.05);border:1px solid rgba(0,180,255,.18);
+  border-radius:6px;padding:7px 4px;text-align:center}
+.dc-cell i{display:block;font-style:normal;font-size:9px;color:#6f9cc4;letter-spacing:1px}
+.dc-cell b{display:block;font-size:17px;color:#4fd0ff;font-family:Consolas,monospace;margin:2px 0 1px}
+.dc-cell em{font-style:normal;font-size:9px;color:#5f8cb5}
+.dc-sub{font-size:10px;color:#6f9cc4;letter-spacing:2px;margin:2px 0 5px}
+.dc-spark{width:100%;height:56px;display:block}
+.dc-btns{display:flex;gap:8px;margin-top:10px}
+.dc-btns button{flex:1;background:rgba(0,180,255,.08);border:1px solid rgba(0,200,255,.4);
+  color:#9fd8ff;font-size:11px;padding:6px 0;border-radius:5px;cursor:pointer;
+  letter-spacing:1px;font-family:inherit;transition:.25s}
+.dc-btns button:hover{background:rgba(0,180,255,.22);color:#fff}
+#reportCard{position:absolute;right:16px;bottom:16px;width:300px;padding:14px 16px;
+  animation:msgIn .4s ease;z-index:6}
+#reportCard.hidden{display:none}
+.rc-title{font-size:13px;color:#d5ecff;letter-spacing:1px;margin-bottom:10px}
+.rc-progress{height:4px;background:rgba(0,200,255,.12);border-radius:2px;overflow:hidden}
+.rc-progress i{display:block;height:100%;width:0;
+  background:linear-gradient(90deg,#0088ff,#00e5ff);box-shadow:0 0 10px #00c8ff}
+.rc-status{margin-top:9px;font-size:11px;color:#7ba6c9}
+.rc-status.ok{color:#35c8ff}
+/* --- 右：图表 --- */
+.right-panel{display:flex;flex-direction:column;gap:14px}
+.chart-card{display:flex;flex-direction:column;min-height:0}
+.chart-card .p-title{font-size:13px;padding:9px 14px 6px}
+.chart{flex:1;min-height:0}
+.chart-fallback{display:flex;align-items:center;justify-content:center;
+  color:#5f8cb5;font-size:12px;height:100%}
+/* ================= 底部告警 ================= */
+.ticker{height:40px;display:flex;align-items:center;overflow:hidden}
+.tk-label{display:flex;align-items:center;gap:8px;padding:0 16px;height:100%;
+  color:#ff9d9d;font-size:13px;letter-spacing:2px;flex:none;
+  border-right:1px solid rgba(255,92,92,.3);
+  background:linear-gradient(180deg,rgba(255,92,92,.06),transparent)}
+.blink-dot{width:8px;height:8px;border-radius:50%;background:#ff5c5c;
+  box-shadow:0 0 10px #ff5c5c;animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.25}}
+.tk-viewport{flex:1;overflow:hidden;height:100%;display:flex;align-items:center;
+  -webkit-mask:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent);
+  mask:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent)}
+.tk-track{display:flex;width:max-content;animation:marquee 32s linear infinite}
+.ticker:hover .tk-track{animation-play-state:paused}
+.tk-half{display:flex;gap:80px;padding-right:80px}
+.tk-item{white-space:nowrap;font-size:12px;color:#9fc3e0}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:7px}
+.dot.red{background:#ff5c5c;box-shadow:0 0 6px #ff5c5c}
+.dot.orange{background:#ffb800;box-shadow:0 0 6px #ffb800}
+.dot.green{background:#35c8ff;box-shadow:0 0 6px #35c8ff}
+.dot.cyan{background:#00e5ff;box-shadow:0 0 6px #00e5ff}
+.tk-time{flex:none;padding:0 16px;font-size:11px;color:#5f8cb5;
+  font-family:Consolas,monospace;border-left:1px solid rgba(0,200,255,.2);height:100%;
+  display:flex;align-items:center}
+@keyframes marquee{to{transform:translateX(-50%)}}
+/* ================= 地球场景 ================= */
+#globeScene{position:absolute;inset:0;z-index:90;transition:opacity .7s}
+#globeScene.hide{opacity:0;pointer-events:none}
+#globeCv{position:absolute;inset:0;cursor:grab;touch-action:none}
+#globeCv.drag{cursor:grabbing}
+#globeCv.gz{cursor:pointer}
+.gs-head{position:relative;height:86px;display:flex;align-items:center;justify-content:center;z-index:2}
+.gs-head h1{font-size:30px}
+.gs-hint{position:absolute;left:50%;bottom:64px;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:11px;z-index:2}
+.gs-hint-city{font-size:14px;letter-spacing:3px;color:#9fc3e0;
+  border:1px solid rgba(0,200,255,.3);background:rgba(5,15,32,.6);
+  padding:8px 24px;border-radius:4px;
+  box-shadow:0 0 18px rgba(0,180,255,.12),inset 0 0 12px rgba(0,180,255,.05);
+  animation:hintBreath 3s ease-in-out infinite}
+.gs-hint-city b{color:#35c8ff;font-weight:700;letter-spacing:4px;
+  text-shadow:0 0 10px rgba(0,190,255,.8)}
+@keyframes hintBreath{50%{box-shadow:0 0 26px rgba(0,180,255,.28),inset 0 0 12px rgba(0,180,255,.1);border-color:rgba(0,200,255,.55)}}
+.gs-hint-tip{font-size:11px;color:#5f8cb5;letter-spacing:2px;display:flex;align-items:center;gap:10px}
+.gs-hint-tip::before{content:'';width:40px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(0,200,255,.4))}
+.gs-hint-tip::after{content:'';width:40px;height:1px;
+  background:linear-gradient(90deg,rgba(0,200,255,.4),transparent)}
+.gs-corner{position:absolute;font-family:Consolas,monospace;font-size:10px;
+  color:rgba(95,140,181,.75);letter-spacing:1.5px;z-index:2}
+.gs-corner.bl{left:34px;bottom:26px}
+.gs-loading{position:absolute;left:50%;top:58%;transform:translate(-50%,-50%);
+  display:flex;flex-direction:column;align-items:center;gap:15px;z-index:3}
+.gs-loading.hidden{display:none}
+.gs-ring{position:relative;width:120px;height:120px}
+.gs-ring svg{transform:rotate(-90deg);display:block}
+.gs-ring .bgc{fill:none;stroke:rgba(0,200,255,.12);stroke-width:3}
+.gs-ring .fgc{fill:none;stroke:url(#gsGrad);stroke-width:3;stroke-linecap:round;
+  filter:drop-shadow(0 0 6px rgba(0,190,255,.8))}
+.gs-ring .pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:Consolas,monospace;font-size:22px;color:#7fd8ff;
+  text-shadow:0 0 12px rgba(0,190,255,.6)}
+.gs-load-city{font-size:15px;letter-spacing:4px;color:#e8f4ff;
+  text-shadow:0 0 14px rgba(0,190,255,.4)}
+.gs-load-city b{color:#35c8ff}
+.gs-load-stage{font-size:11px;color:#7ba6c9;letter-spacing:2px;min-height:16px;
+  animation:stageIn .5s ease both}
+@keyframes stageIn{from{opacity:0;transform:translateY(6px)}to{opacity:1}}
+.gs-skip{position:absolute;right:30px;bottom:24px;z-index:3;font-size:11px;
+  color:#5f8cb5;letter-spacing:2px;background:rgba(5,15,32,.5);
+  border:1px solid rgba(0,200,255,.22);padding:5px 13px;border-radius:3px;cursor:pointer;
+  font-family:inherit;transition:.25s}
+.gs-skip:hover{color:#9fd8ff;border-color:rgba(0,200,255,.5)}
+#gsToast{position:absolute;left:50%;bottom:180px;transform:translateX(-50%) translateY(8px);
+  z-index:5;font-size:12px;color:#cfeaff;letter-spacing:2px;background:rgba(6,18,38,.9);
+  border:1px solid rgba(0,200,255,.4);padding:9px 22px;border-radius:4px;opacity:0;
+  transition:.35s;pointer-events:none;box-shadow:0 0 18px rgba(0,150,255,.25)}
+#gsToast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+/* ================= 开场动画 ================= */
+#intro{position:absolute;inset:0;z-index:99;background:#02060f;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;
+  overflow:hidden;transition:opacity .8s}
+#introVideo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;z-index:0;background:#02060f}
+#introVideoShade{position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(0,0,0,.12),rgba(0,0,0,.38))}
+#introCopy{position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;gap:20px;opacity:0;visibility:hidden}
+#introCopy.show{opacity:1;visibility:visible}
+#introCopy.show .intro-tag{animation:introIn 1.2s .05s ease both}
+#introCopy.show .intro-title{animation:introIn 1.4s .15s ease both}
+#introCopy.show .intro-sub{animation:introIn 1.4s .35s ease both}
+#introCopy.show .intro-bar{animation:introIn 1s .5s ease both}
+#introCopy.show .intro-pct{animation:introIn 1s .55s ease both}
+#intro.hide{opacity:0;pointer-events:none}
+#intro .ring{position:absolute;left:50%;top:50%;border:1px dashed rgba(0,200,255,.16);
+  border-radius:50%;pointer-events:none}
+#intro .r1{width:560px;height:560px;margin:-280px 0 0 -280px;animation:hexSpin 32s linear infinite}
+#intro .r2{width:780px;height:780px;margin:-390px 0 0 -390px;animation:hexSpinR 48s linear infinite;
+  border-color:rgba(0,200,255,.1)}
+@keyframes hexSpin{to{transform:rotate(360deg)}}
+@keyframes hexSpinR{to{transform:rotate(-360deg)}}
+.intro-tag{font-size:11px;color:#6fc8ff;border:1px solid rgba(0,200,255,.35);
+  background:rgba(0,180,255,.06);padding:4px 16px;letter-spacing:5px;border-radius:2px;
+}
+.intro-title{font-size:54px;letter-spacing:16px;color:#eaf6ff;font-weight:700;
+  text-shadow:0 0 12px rgba(120,215,255,.8),0 0 40px rgba(0,170,255,.5);
+}
+.intro-sub{color:#5f8cb5;letter-spacing:8px;font-size:13px;animation:introIn 1.4s .35s ease both}
+.intro-bar{width:480px;height:3px;background:rgba(0,200,255,.12);border-radius:2px;
+  overflow:hidden}
+.intro-bar i{display:block;height:100%;width:0;border-radius:2px;
+  background:linear-gradient(90deg,#0050ff,#00a8ff,#7fdcff);
+  box-shadow:0 0 12px rgba(0,180,255,.9)}
+.intro-pct{font-family:Consolas,monospace;font-size:13px;color:#8fd8ff;
+  letter-spacing:2px}
+@keyframes introIn{from{opacity:0;letter-spacing:32px;transform:translateY(12px)}to{opacity:1}}
+.reveal{animation:rise .95s cubic-bezier(.2,.75,.25,1) backwards;animation-delay:var(--d,.2s)}
+@keyframes rise{from{opacity:0;transform:translateY(26px) scale(.985);filter:blur(4px)}
+  to{opacity:1;filter:blur(0)}}
+</style>
+</head>
+<body>
+<div id="screen" class="pre">
+  <div class="aurora"><i class="a1"></i><i class="a2"></i></div>
+  <canvas id="particles" width="1920" height="1080"></canvas>
+  <i class="s-corner tl"></i><i class="s-corner tr"></i><i class="s-corner bl"></i><i class="s-corner br"></i>
+  <span class="s-meta l">DATA-LINK ● ONLINE · 34 SYSTEMS · 5,231 SOURCES</span>
+  <span class="s-meta r">ECO-AI ENGINE V3.2 · GOV EDITION</span>
+  <!-- 开场 -->
+  <div id="intro">
+    <video id="introVideo" autoplay muted playsinline preload="auto">
+      <source src="https://yupi2-1346975844.cos.ap-guangzhou.myqcloud.com/b8d7d1eee1caad12038b45359bdfff28_raw.mp4" type="video/mp4">
+    </video>
+    <div id="introVideoShade"></div>
+    <div id="introCopy">
+      <i class="ring r1"></i><i class="ring r2"></i>
+      <div class="intro-tag">ECO-AI ENGINE V3.2 · GOV EDITION</div>
+      <div class="intro-title">城市生态环境 · AI 智慧驾驶舱</div>
+      <div class="intro-sub">URBAN ECO-ENVIRONMENT AI INTELLIGENT COCKPIT</div>
+      <div class="intro-bar"><i id="introFill"></i></div>
+      <div class="intro-pct"><span id="introPct">0</span>%</div>
+    </div>
+  </div>
+  <!-- 顶栏 -->
+  <header class="reveal" style="--d:0s">
+    <div class="h-side left">
+      <div>
+        <div style="display:flex;gap:8px">
+          <span class="h-tag">智慧环保</span><span class="h-tag">数字监管</span>
+          <button class="h-tag" id="btnGlobe">🌐 地球视角</button>
+        </div>
+        <div class="h-note">监测网络：34 个系统 · 5,231 类数据源 · 实时接入</div>
+      </div>
+    </div>
+    <div class="h-center-wrap">
+      <svg class="hexa hx-l" viewBox="0 0 44 44">
+        <polygon class="out" points="22,3 38,12 38,31 22,40 6,31 6,12"/>
+        <polygon class="in" points="22,11 31,16.5 31,27.5 22,33 13,27.5 13,16.5"/>
+        <circle cx="22" cy="22" r="2.2" fill="#37c0ff"/>
+      </svg>
+      <svg class="wing wl" width="240" height="64" viewBox="0 0 240 64">
+        <path d="M6,20 L98,20 L126,32 L236,32" fill="none" stroke="rgba(0,200,255,.4)" stroke-width="1.2"/>
+        <path d="M26,46 L112,46 L138,38 L236,38" fill="none" stroke="rgba(0,200,255,.26)" stroke-width="1"/>
+        <circle cx="6" cy="20" r="2.4" fill="#7fc8ff"/>
+        <circle cx="26" cy="46" r="1.8" fill="#5fb8e8"/>
+        <path d="M230,26 l8,6 -8,6" fill="none" stroke="rgba(0,200,255,.6)" stroke-width="1.4"/>
+      </svg>
+      <div class="h-center">
+        <h1>城市生态环境 AI 智慧驾驶舱</h1>
+        <div class="h-sub">GUANGZHOU ECO-ENVIRONMENT AI COCKPIT · DEMO</div>
+      </div>
+      <svg class="wing wr" width="240" height="64" viewBox="0 0 240 64">
+        <path d="M6,20 L98,20 L126,32 L236,32" fill="none" stroke="rgba(0,200,255,.4)" stroke-width="1.2"/>
+        <path d="M26,46 L112,46 L138,38 L236,38" fill="none" stroke="rgba(0,200,255,.26)" stroke-width="1"/>
+        <circle cx="6" cy="20" r="2.4" fill="#7fc8ff"/>
+        <circle cx="26" cy="46" r="1.8" fill="#5fb8e8"/>
+        <path d="M230,26 l8,6 -8,6" fill="none" stroke="rgba(0,200,255,.6)" stroke-width="1.4"/>
+      </svg>
+      <svg class="hexa hx-r" viewBox="0 0 44 44">
+        <polygon class="out" points="22,3 38,12 38,31 22,40 6,31 6,12"/>
+        <polygon class="in" points="22,11 31,16.5 31,27.5 22,33 13,27.5 13,16.5"/>
+        <circle cx="22" cy="22" r="2.2" fill="#37c0ff"/>
+      </svg>
+    </div>
+    <div class="h-side right">
+      <div class="h-weather">晴 26℃ · 湿度 58% · 东南风 2 级</div>
+      <div class="h-time" id="hTime"></div>
+      <div class="h-status"><i></i>平台运行正常 · 已安全运行 <b>1,286</b> 天</div>
+    </div>
+    <div class="h-sep"><i class="dia"></i></div>
+  </header>
+  <!-- 指标卡 -->
+  <div class="metrics">
+    <div class="metric panel reveal" style="--d:.06s">
+      <div class="m-icon">
+        <svg class="m-glyph" viewBox="0 0 24 24"><path d="M3 8h9a2.5 2.5 0 1 0-2.4-3.2"/><path d="M3 12h13a3 3 0 1 1-2.9 3.8"/><path d="M3 16h6"/></svg>
+      </div>
+      <div>
+        <div class="m-label">综合 AQI<span class="en">INDEX</span></div>
+        <div class="m-val"><span class="num" id="aqiNum" data-target="72">0</span><span class="m-unit">良</span></div>
+        <div class="m-cmp bad">▲ 较昨日 +3</div>
+      </div>
+      <svg class="m-spark" viewBox="0 0 72 26">
+        <path class="s-fill" d="M2,20 L12,17 L22,19 L32,12 L42,15 L52,8 L62,11 L70,5 L70,26 L2,26 Z" fill="#37b8ff"/>
+        <path class="s-line" d="M2,20 L12,17 L22,19 L32,12 L42,15 L52,8 L62,11 L70,5" stroke="#37b8ff"/>
+      </svg>
+    </div>
+    <div class="metric panel reveal" style="--d:.14s">
+      <div class="m-icon">
+        <svg class="m-glyph" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.6"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6L7 7M17 17l1.4 1.4M18.4 5.6L17 7M7 17l-1.4 1.4"/></svg>
+      </div>
+      <div>
+        <div class="m-label">优良天数比例<span class="en">GOOD-DAY</span></div>
+        <div class="m-val"><span class="num" data-target="89.6" data-dec="1">0</span><span class="m-unit">%</span></div>
+        <div class="m-cmp good">▲ 较上月 +1.2pt</div>
+      </div>
+      <svg class="m-spark" viewBox="0 0 72 26">
+        <path class="s-fill" d="M2,16 L12,17 L22,13 L32,14 L42,10 L52,11 L62,7 L70,6 L70,26 L2,26 Z" fill="#4fd0ff"/>
+        <path class="s-line" d="M2,16 L12,17 L22,13 L32,14 L42,10 L52,11 L62,7 L70,6" stroke="#4fd0ff"/>
+      </svg>
+    </div>
+    <div class="metric panel reveal" style="--d:.22s">
+      <div class="m-icon">
+        <svg class="m-glyph" viewBox="0 0 24 24"><path d="M12 3.5c3.2 4.2 5.5 7 5.5 9.7a5.5 5.5 0 1 1-11 0C6.5 10.5 8.8 7.7 12 3.5z"/></svg>
+      </div>
+      <div>
+        <div class="m-label">PM2.5 浓度<span class="en">PM2.5</span></div>
+        <div class="m-val"><span class="num" data-target="36">0</span><span class="m-unit">μg/m³</span></div>
+        <div class="m-cmp good">▼ 较昨日 -2</div>
+      </div>
+      <svg class="m-spark" viewBox="0 0 72 26">
+        <path class="s-fill" d="M2,6 L12,9 L22,8 L32,13 L42,12 L52,16 L62,15 L70,19 L70,26 L2,26 Z" fill="#4fd0ff"/>
+        <path class="s-line" d="M2,6 L12,9 L22,8 L32,13 L42,12 L52,16 L62,15 L70,19" stroke="#4fd0ff"/>
+      </svg>
+    </div>
+    <div class="metric panel reveal" style="--d:.30s">
+      <div class="m-icon">
+        <svg class="m-glyph" viewBox="0 0 24 24"><path d="M3 10c2-2.2 4-2.2 6 0s4 2.2 6 0 4-2.2 6 0"/><path d="M3 15c2-2.2 4-2.2 6 0s4 2.2 6 0 4-2.2 6 0"/></svg>
+      </div>
+      <div>
+        <div class="m-label">水环境达标率<span class="en">WATER</span></div>
+        <div class="m-val"><span class="num" data-target="92.3" data-dec="1">0</span><span class="m-unit">%</span></div>
+        <div class="m-cmp good">▲ +0.8pt</div>
+      </div>
+      <svg class="m-spark" viewBox="0 0 72 26">
+        <path class="s-fill" d="M2,18 L12,15 L22,16 L32,11 L42,13 L52,8 L62,10 L70,5 L70,26 L2,26 Z" fill="#37b8ff"/>
+        <path class="s-line" d="M2,18 L12,15 L22,16 L32,11 L42,13 L52,8 L62,10 L70,5" stroke="#37b8ff"/>
+      </svg>
+    </div>
+    <div class="metric panel reveal" style="--d:.38s">
+      <div class="m-icon">
+        <svg class="m-glyph" viewBox="0 0 24 24"><path d="M12 3l7 2.8v5.4c0 4.6-3 7.6-7 9.2-4-1.6-7-4.6-7-9.2V5.8z"/><path d="M9 12l2 2 4-4.5"/></svg>
+      </div>
+      <div>
+        <div class="m-label">污染源在线率<span class="en">ONLINE</span></div>
+        <div class="m-val"><span class="num" data-target="97.7" data-dec="1">0</span><span class="m-unit">%</span></div>
+        <div class="m-cmp flat">● 86 家重点源 · 运行平稳</div>
+      </div>
+      <svg class="m-spark" viewBox="0 0 72 26">
+        <path class="s-fill" d="M2,10 L12,9 L22,11 L32,8 L42,10 L52,7 L62,9 L70,6 L70,26 L2,26 Z" fill="#4fd0ff"/>
+        <path class="s-line" d="M2,10 L12,9 L22,11 L32,8 L42,10 L52,7 L62,9 L70,6" stroke="#4fd0ff"/>
+      </svg>
+    </div>
+  </div>
+  <main>
+    <!-- 左：AI 助手 -->
+    <aside class="left-panel panel reveal" style="--d:.26s">
+      <div class="p-title">AI 智能分析助手 <span class="p-live"><i></i>ONLINE</span><span class="en">ECO-AI ASSISTANT</span></div>
+      <div class="chat-box" id="chatBox"></div>
+      <div class="chips" id="chips">
+        <button class="chip" data-idx="0">本月哪个片区污染最严重？</button>
+        <button class="chip" data-idx="1">分析今日 AQI 变化趋势</button>
+        <button class="chip" data-idx="2">调取重点监管企业在线情况</button>
+        <button class="chip" data-idx="3">生成今日环境质量报告</button>
+      </div>
+      <div class="chat-input">
+        <input id="chatInput" placeholder="输入指令，如：分析白云区污染来源…" maxlength="60">
+        <button class="send-btn" id="sendBtn">发送</button>
+      </div>
+    </aside>
+    <!-- 中：地图 -->
+    <section class="map-panel panel reveal" style="--d:.36s">
+      <div class="p-title">污染源分布 · 全域实时态势<span class="en">REAL-TIME SITUATION</span></div>
+      <div class="map-body" id="mapBody">
+        <svg id="gzMap" viewBox="0 0 1000 820" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+          <defs>
+            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+              <path d="M40 0H0V40" fill="none" stroke="rgba(0,200,255,.06)"/>
+            </pattern>
+            <linearGradient id="riverGrad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="#0e4c7a"/><stop offset="1" stop-color="#1170a8"/>
+            </linearGradient>
+            <linearGradient id="sweepGrad" x1="1" y1="0" x2="0" y2="0">
+              <stop offset="0" stop-color="rgba(0,200,255,.5)"/><stop offset="1" stop-color="rgba(0,200,255,0)"/>
+            </linearGradient>
+            <linearGradient id="distFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="rgba(35,95,165,.48)"/><stop offset="1" stop-color="rgba(12,42,84,.24)"/>
+            </linearGradient>
+            <linearGradient id="beamR" x1="0" y1="1" x2="0" y2="0">
+              <stop offset="0" stop-color="rgba(255,92,92,.6)"/><stop offset="1" stop-color="rgba(255,92,92,0)"/>
+            </linearGradient>
+            <linearGradient id="beamO" x1="0" y1="1" x2="0" y2="0">
+              <stop offset="0" stop-color="rgba(255,184,0,.55)"/><stop offset="1" stop-color="rgba(255,184,0,0)"/>
+            </linearGradient>
+            <filter id="blurF" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="7"/></filter>
+          </defs>
+          <rect width="1000" height="820" fill="url(#grid)"/>
+          <g id="mapZoom">
+            <path class="wind" d="M-20,180 C200,150 420,210 640,170 C780,145 900,170 1020,150"/>
+            <path class="wind" d="M-20,260 C220,300 500,240 720,280 C860,305 940,290 1020,300"/>
+            <path class="wind" d="M-20,600 C240,640 520,600 760,650 C880,675 950,680 1020,690"/>
+            <path id="airRouteP" fill="none" stroke="none" d="M150,140 C400,70 700,90 880,170 C940,240 860,330 740,300 C560,260 420,300 300,260 C190,225 110,190 150,140 Z"/>
+            <path class="air-route" d="M150,140 C400,70 700,90 880,170 C940,240 860,330 740,300 C560,260 420,300 300,260 C190,225 110,190 150,140 Z"/>
+            <!-- 广州 11 区 -->
+            <g id="districts">
+              <path class="district" data-name="从化区" fill="url(#distFill)" d="M430,45 L610,35 L680,140 L600,200 L470,215 L410,140 Z"/>
+              <path class="district" data-name="花都区" fill="url(#distFill)" d="M80,90 L300,60 L350,180 L230,250 L90,225 Z"/>
+              <path class="district" data-name="增城区" fill="url(#distFill)" d="M690,150 L930,190 L950,350 L830,395 L700,330 L660,230 Z"/>
+              <path class="district" data-name="白云区" fill="url(#distFill)" d="M250,265 L420,175 L540,235 L560,340 L420,395 L260,385 Z"/>
+              <path class="district" data-name="黄埔区" fill="url(#distFill)" d="M600,310 L770,255 L860,330 L810,470 L640,455 L595,385 Z"/>
+              <path class="district" data-name="荔湾区" fill="url(#distFill)" d="M110,295 L235,385 L215,505 L90,475 Z"/>
+              <path class="district" data-name="越秀区" fill="url(#distFill)" d="M325,415 L405,405 L415,475 L335,490 Z"/>
+              <path class="district" data-name="天河区" fill="url(#distFill)" d="M435,395 L565,355 L625,465 L485,515 L415,475 Z"/>
+              <path class="district" data-name="海珠区" fill="url(#distFill)" d="M335,515 L475,535 L465,655 L325,635 Z"/>
+              <path class="district" data-name="番禺区" fill="url(#distFill)" d="M485,565 L705,545 L765,685 L565,740 L475,655 Z"/>
+              <path class="district" data-name="南沙区" fill="url(#distFill)" d="M570,750 L700,725 L750,790 L620,812 L560,785 Z"/>
+            </g>
+            <!-- 珠江 -->
+            <path class="river-glow" filter="url(#blurF)" d="M-20,430 C140,438 250,470 330,500 C400,527 460,560 560,592 C680,630 810,650 1020,660"/>
+            <path class="river-wide" d="M-20,430 C140,438 250,470 330,500 C400,527 460,560 560,592 C680,630 810,650 1020,660"/>
+            <path id="riverCore" class="river-core" d="M-20,430 C140,438 250,470 330,500 C400,527 460,560 560,592 C680,630 810,650 1020,660"/>
+            <!-- 告警光柱 -->
+            <g id="beams">
+              <g transform="translate(350,300)">
+                <path d="M-8,0 L-3.5,-58 L3.5,-58 L8,0 Z" fill="url(#beamR)"/>
+                <ellipse rx="10" ry="3" fill="rgba(255,120,120,.35)"/>
+              </g>
+              <g transform="translate(795,430)">
+                <path d="M-7,0 L-3,-46 L3,-46 L7,0 Z" fill="url(#beamO)"/>
+                <ellipse rx="8" ry="2.5" fill="rgba(255,190,80,.3)"/>
+              </g>
+            </g>
+            <!-- 飞线 -->
+            <g id="flylines">
+              <path class="fl" d="M508,424 C460,390 400,340 350,300"/>
+              <g><circle class="fd-halo" r="4.5"/><circle class="fd" r="2"/><animateMotion dur="2.6s" repeatCount="indefinite" path="M508,424 C460,390 400,340 350,300"/></g>
+              <path class="fl" d="M508,424 C600,460 700,460 795,430"/>
+              <g><circle class="fd-halo" r="4.5"/><circle class="fd" r="2"/><animateMotion dur="3.4s" begin="-1.1s" repeatCount="indefinite" path="M508,424 C600,460 700,460 795,430"/></g>
+              <path class="fl" d="M508,424 C540,520 590,600 640,660"/>
+              <g><circle class="fd-halo" r="4.5"/><circle class="fd" r="2"/><animateMotion dur="3.8s" begin="-2s" repeatCount="indefinite" path="M508,424 C540,520 590,600 640,660"/></g>
+              <path class="fl" d="M508,424 C660,340 760,290 850,250"/>
+              <g><circle class="fd-halo" r="4.5"/><circle class="fd" r="2"/><animateMotion dur="3s" begin="-.6s" repeatCount="indefinite" path="M508,424 C660,340 760,290 850,250"/></g>
+              <path class="fl" d="M508,424 C440,436 400,452 375,462"/>
+              <g><circle class="fd-halo" r="4.5"/><circle class="fd" r="2"/><animateMotion dur="2.2s" begin="-1.5s" repeatCount="indefinite" path="M508,424 C440,436 400,452 375,462"/></g>
+            </g>
+            <!-- 无人机巡航 -->
+            <g>
+              <g><circle r="6.5" fill="rgba(255,215,106,.14)" stroke="rgba(255,215,106,.65)" stroke-width="1"/>
+                <circle r="2.6" fill="#ffd76a"/>
+                <text x="11" y="-7" class="drone-t">无人机巡航 · 河道巡查</text>
+                <animateMotion dur="34s" repeatCount="indefinite"><mpath href="#riverCore" xlink:href="#riverCore"/></animateMotion>
+              </g>
+              <g><circle r="6.5" fill="rgba(255,215,106,.14)" stroke="rgba(255,215,106,.65)" stroke-width="1"/>
+                <circle r="2.6" fill="#ffd76a"/>
+                <text x="11" y="-7" class="drone-t">VOCs 走航监测 · 巡航中</text>
+                <animateMotion dur="46s" repeatCount="indefinite"><mpath href="#airRouteP" xlink:href="#airRouteP"/></animateMotion>
+              </g>
+            </g>
+            <!-- 监测点位 -->
+            <g class="poi sev-red"><g transform="translate(350,300)"><circle class="halo" r="10"/><circle class="ripple" r="8"/><circle class="core" r="5"/><text x="12" y="4">在建工地 · 扬尘超标</text></g></g>
+            <g class="poi sev-orange"><g transform="translate(795,430)"><circle class="halo" r="10"/><circle class="ripple" r="8"/><circle class="core" r="5"/><text x="12" y="4">工业企业 · 预警</text></g></g>
+            <g class="poi sev-cyan"><g transform="translate(588,452)"><circle class="halo" r="9"/><circle class="ripple" r="8"/><circle class="core" r="4"/><text x="12" y="4">交通干线 · 监测点</text></g></g>
+            <g class="poi sev-green"><g transform="translate(375,462)"><circle class="halo" r="9"/><circle class="ripple" r="8"/><circle class="core" r="4"/><text x="12" y="4">餐饮油烟 · 在线</text></g></g>
+            <g class="poi sev-cyan"><g transform="translate(640,660)"><circle class="halo" r="9"/><circle class="ripple" r="8"/><circle class="core" r="4"/><text x="12" y="4">水质自动站 · 正常</text></g></g>
+            <!-- 超级站 -->
+            <g transform="translate(508,424)">
+              <circle r="55" class="radar-ring"/><circle r="95" class="radar-ring"/>
+              <g><circle r="132" class="orbit-ring"/><circle cx="132" cy="0" r="3" class="sat"/>
+                <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="16s" repeatCount="indefinite"/></g>
+              <g><circle r="168" class="orbit-ring o2"/><circle cx="0" cy="-168" r="2.5" class="sat s2"/>
+                <animateTransform attributeName="transform" type="rotate" from="360" to="0" dur="24s" repeatCount="indefinite"/></g>
+              <g><path d="M0,0 L110,0 A110,110 0 0,0 95,-55 Z" fill="url(#sweepGrad)"/>
+                <animateTransform attributeName="transform" type="rotate" from="0 0 0" to="360 0 0" dur="4s" repeatCount="indefinite"/></g>
+              <circle r="4" fill="#35c8ff"/>
+              <text y="-114" text-anchor="middle" class="radar-label">超级站 · 实时监测</text>
+            </g>
+            <!-- 区名 -->
+            <g>
+              <text class="d-label" x="170" y="150">花都区</text>
+              <text class="d-label" x="505" y="125">从化区</text>
+              <text class="d-label" x="790" y="270">增城区</text>
+              <text class="d-label" x="370" y="295">白云区</text>
+              <text class="d-label" x="715" y="370">黄埔区</text>
+              <text class="d-label" x="125" y="400">荔湾区</text>
+              <text class="d-label" x="335" y="455">越秀区</text>
+              <text class="d-label" x="510" y="440">天河区</text>
+              <text class="d-label" x="375" y="590">海珠区</text>
+              <text class="d-label" x="598" y="645">番禺区</text>
+              <text class="d-label" x="625" y="782">南沙区</text>
+            </g>
+            <g id="alertLayer"></g>
+            <!-- 锁定框 -->
+            <g id="reticle" class="hidden">
+              <g><circle r="34" class="ret-c1"/>
+                <animateTransform attributeName="transform" type="rotate" from="0 0 0" to="360 0 0" dur="5s" repeatCount="indefinite"/></g>
+              <g><circle r="46" class="ret-c3"/>
+                <animateTransform attributeName="transform" type="rotate" from="360 0 0" to="0 0 0" dur="7s" repeatCount="indefinite"/></g>
+              <circle r="20" class="ret-c2"/>
+              <line x1="-48" y1="0" x2="-30" y2="0" class="ret-t"/><line x1="30" y1="0" x2="48" y2="0" class="ret-t"/>
+              <line x1="0" y1="-48" x2="0" y2="-30" class="ret-t"/><line x1="0" y1="30" x2="0" y2="48" class="ret-t"/>
+              <text id="retLabel" y="-64"></text>
+            </g>
+          </g>
+        </svg>
+        <div class="map-cross" id="mapCross"><i class="v"></i><i class="h"></i><i class="dc"></i><span class="cc" id="crossCoord"></span></div>
+        <div class="map-ctrl">
+          <button id="mzIn" title="放大">＋</button>
+          <button id="mzOut" title="缩小">－</button>
+          <button id="mzReset" title="复位视野">⌂</button>
+        </div>
+        <div class="map-time">数据更新 <span id="mapTime">--:--:--</span></div>
+        <div class="map-legend">
+          <span><i style="background:#ff5c5c;color:#ff5c5c"></i>超标</span>
+          <span><i style="background:#ffb800;color:#ffb800"></i>预警</span>
+          <span><i style="background:#35c8ff;color:#35c8ff"></i>正常</span>
+          <span><i style="background:#00e5ff;color:#00e5ff"></i>监测站</span>
+          <span class="lg-scale">滚轮缩放 · 拖拽平移 · 点击区下钻</span>
+        </div>
+        <div id="districtCard" class="panel hidden"></div>
+        <div id="reportCard" class="panel hidden">
+          <div class="rc-title">《生态环境质量快报》 · 自动生成</div>
+          <div class="rc-progress"><i></i></div>
+          <div class="rc-status">数据采集 · 指标校验 · 排版输出…</div>
+        </div>
+      </div>
+    </section>
+    <!-- 右：图表 -->
+    <aside class="right-panel">
+      <div class="chart-card panel reveal" style="--d:.46s;flex:1.15">
+        <div class="p-title">AQI · 24 小时趋势<span class="en">24H TREND</span></div>
+        <div class="chart" id="chartTrend"></div>
+      </div>
+      <div class="chart-card panel reveal" style="--d:.56s;flex:1.05">
+        <div class="p-title">各片区 PM2.5 月均排名（μg/m³）<span class="en">RANK</span></div>
+        <div class="chart" id="chartRank"></div>
+      </div>
+      <div class="chart-card panel reveal" style="--d:.66s;flex:.95">
+        <div class="p-title">污染源类型构成<span class="en">COMPOSITION</span></div>
+        <div class="chart" id="chartPie"></div>
+      </div>
+    </aside>
+  </main>
+  <!-- 底部告警 -->
+  <footer class="ticker panel reveal" style="--d:.76s">
+    <div class="tk-label"><i class="blink-dot"></i>实时告警</div>
+    <div class="tk-viewport"><div class="tk-track">
+      <div class="tk-half">
+        <span class="tk-item"><i class="dot red"></i>14:52 白云区·太和镇 在建工地扬尘浓度超标，已自动派发处置工单 #GD-20581</span>
+        <span class="tk-item"><i class="dot orange"></i>14:37 黄埔区·云埔工业区 某企业废气 SO₂ 在线数据异常，触发二级预警</span>
+        <span class="tk-item"><i class="dot cyan"></i>14:15 珠江番禺段 水质自动站 pH 恢复正常，事件闭环办结</span>
+        <span class="tk-item"><i class="dot green"></i>13:58 天河区·珠江新城 交通噪声监测均值达标</span>
+        <span class="tk-item"><i class="dot orange"></i>13:40 荔湾区·餐饮集中区 2 家油烟在线预警，已通知限期整改</span>
+      </div>
+      <div class="tk-half">
+        <span class="tk-item"><i class="dot red"></i>14:52 白云区·太和镇 在建工地扬尘浓度超标，已自动派发处置工单 #GD-20581</span>
+        <span class="tk-item"><i class="dot orange"></i>14:37 黄埔区·云埔工业区 某企业废气 SO₂ 在线数据异常，触发二级预警</span>
+        <span class="tk-item"><i class="dot cyan"></i>14:15 珠江番禺段 水质自动站 pH 恢复正常，事件闭环办结</span>
+        <span class="tk-item"><i class="dot green"></i>13:58 天河区·珠江新城 交通噪声监测均值达标</span>
+        <span class="tk-item"><i class="dot orange"></i>13:40 荔湾区·餐饮集中区 2 家油烟在线预警，已通知限期整改</span>
+      </div>
+    </div></div>
+    <div class="tk-time">更新于 <span id="tkTime">--:--</span></div>
+  </footer>
+  <!-- 地球场景 -->
+  <div id="globeScene">
+    <canvas id="globeCv" width="1920" height="1080"></canvas>
+    <div class="gs-head">
+      <div class="h-side left">
+        <div>
+          <div style="display:flex;gap:8px">
+            <span class="h-tag">智慧环保</span><span class="h-tag">数字监管</span><span class="h-tag">AI 驱动</span>
+          </div>
+          <div class="h-note">GLOBAL ECO-ENVIRONMENT DATA NETWORK</div>
+        </div>
+      </div>
+      <div class="h-center">
+        <h1>城市生态环境 AI 智慧驾驶舱</h1>
+        <div class="h-sub">URBAN ECO-ENVIRONMENT AI INTELLIGENT COCKPIT</div>
+      </div>
+      <div class="h-side right">
+        <div class="h-time" id="gsTime"></div>
+        <div class="h-status"><i></i>全球数据链路 · 在线</div>
+      </div>
+    </div>
+    <div class="gs-hint" id="gsHint">
+      <div class="gs-hint-city">当前仅支持 <b>广州市</b></div>
+      <div class="gs-hint-tip">拖动旋转地球 · 点击广州标记进入</div>
+    </div>
+    <div class="gs-corner bl">SAT-LINK ● LOCKED · LEO 12/14 · REMOTE SENSING ONLINE</div>
+    <div class="gs-loading hidden" id="gsLoading">
+      <div class="gs-ring">
+        <svg width="120" height="120" viewBox="0 0 120 120">
+          <defs><linearGradient id="gsGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#0077ff"/><stop offset="1" stop-color="#00e5ff"/>
+          </linearGradient></defs>
+          <circle class="bgc" cx="60" cy="60" r="52"/>
+          <circle class="fgc" id="gsFg" cx="60" cy="60" r="52" stroke-dasharray="326.7" stroke-dashoffset="326.7"/>
+        </svg>
+        <div class="pct"><span id="gsPct">0</span>%</div>
+      </div>
+      <div class="gs-load-city">正在进入 · <b>广州市</b></div>
+      <div class="gs-load-stage" id="gsStage">初始化…</div>
+    </div>
+    <div id="gsToast"></div>
+    <button class="gs-skip" id="gsSkip">跳过动画 ↳</button>
+  </div>
+</div>
+<script>
+(function(){
+'use strict';
+var MAIN_ON=false,mainBooted=false;
+/* ========== 自适应缩放（逐帧响应窗口变化） ========== */
+var fitPending=false;
+function fit(){
+  if(fitPending)return;
+  fitPending=true;
+  requestAnimationFrame(function(){
+    fitPending=false;
+    var s=Math.min(window.innerWidth/1920,window.innerHeight/1080);
+    document.getElementById('screen').style.transform='translate(-50%,-50%) scale('+s+')';
+  });
+}
+window.addEventListener('resize',fit);
+window.addEventListener('orientationchange',fit);
+fit();
+/* ========== 粒子 + 光晕（主界面激活后才绘制） ========== */
+(function(){
+  var cv=document.getElementById('particles'),ctx=cv.getContext('2d');
+  var ps=[],orbs=[];
+  for(var i=0;i<95;i++)ps.push({x:Math.random()*1920,y:Math.random()*1080,
+    r:Math.random()*1.5+.5,v:Math.random()*.22+.06,a:Math.random()*.3+.06,
+    c:Math.random()<.72?'0,190,255':'0,220,255'});
+  for(var j=0;j<9;j++)orbs.push({x:Math.random()*1920,y:Math.random()*1080,
+    r:Math.random()*26+16,v:Math.random()*.1+.03,
+    c:j%3?'0,170,255':'0,200,255'});
+  (function loop(){
+    if(MAIN_ON){
+      ctx.clearRect(0,0,1920,1080);
+      orbs.forEach(function(o){
+        o.y-=o.v;if(o.y<-40){o.y=1120;o.x=Math.random()*1920;}
+        var g=ctx.createRadialGradient(o.x,o.y,0,o.x,o.y,o.r);
+        g.addColorStop(0,'rgba('+o.c+',.10)');g.addColorStop(1,'rgba('+o.c+',0)');
+        ctx.fillStyle=g;ctx.beginPath();ctx.arc(o.x,o.y,o.r,0,6.283);ctx.fill();
+      });
+      ps.forEach(function(p){
+        p.y-=p.v;if(p.y<-4){p.y=1084;p.x=Math.random()*1920;}
+        ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,6.283);
+        ctx.fillStyle='rgba('+p.c+','+p.a+')';ctx.fill();
+      });
+    }
+    requestAnimationFrame(loop);
+  })();
+})();
+/* ========== 时钟 ========== */
+function pad(n){return (n<10?'0':'')+n}
+function tickTime(){
+  var d=new Date(),wd='日一二三四五六'.charAt(d.getDay());
+  var t=d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+' 星期'+wd+' '+
+    pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());
+  document.getElementById('hTime').textContent=t;
+  var g=document.getElementById('gsTime');if(g)g.textContent=t;
+  document.getElementById('tkTime').textContent=pad(d.getHours())+':'+pad(d.getMinutes());
+  document.getElementById('mapTime').textContent=pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());
+}
+setInterval(tickTime,1000);tickTime();
+/* ========== 数字滚动 ========== */
+function roll(el,target,dec,dur){
+  var st=null;
+  function fr(t){if(!st)st=t;var p=Math.min((t-st)/dur,1),e=1-Math.pow(1-p,3);
+    el.textContent=(target*e).toFixed(dec);if(p<1)requestAnimationFrame(fr);}
+  requestAnimationFrame(fr);
+}
+/* ========== ECharts ========== */
+function loadECharts(ok,fail){
+  var urls=['https://cdn.staticfile.org/echarts/5.4.3/echarts.min.js',
+            'https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js',
+            'https://unpkg.com/echarts@5.4.3/dist/echarts.min.js'];
+  var i=0;
+  (function tryLoad(){
+    if(i>=urls.length){fail();return;}
+    var s=document.createElement('script');s.src=urls[i];
+    s.onload=ok;s.onerror=function(){i++;tryLoad();};
+    document.head.appendChild(s);
+  })();
+}
+var charts={};
+var HOURS=[];for(var h=0;h<24;h++)HOURS.push((h<10?'0':'')+h+':00');
+function genTrend(base,peak){
+  return HOURS.map(function(_,i){
+    return Math.round(base+peak*Math.exp(-Math.pow((i-9.5)/2.8,2))
+      +9*Math.exp(-Math.pow((i-19)/3.2,2))+(Math.random()*5-2.5));
+  });
+}
+var RANK=[{n:'白云区',v:48},{n:'番禺区',v:43},{n:'黄埔区',v:41},{n:'荔湾区',v:38},
+          {n:'天河区',v:36},{n:'海珠区',v:35},{n:'越秀区',v:33},{n:'花都区',v:31}];
+var TIP={backgroundColor:'rgba(8,21,41,.94)',borderColor:'rgba(0,200,255,.45)',
+         textStyle:{color:'#d5ecff',fontSize:11}};
+function trendOption(d1,d2){
+  return {backgroundColor:'transparent',
+    grid:{left:38,right:12,top:32,bottom:24},
+    tooltip:Object.assign({trigger:'axis'},TIP),
+    legend:{data:['今日','昨日'],textStyle:{color:'#7ba6c9',fontSize:11},
+            itemWidth:14,itemHeight:8,top:2,right:6},
+    xAxis:{type:'category',boundaryGap:false,data:HOURS,
+      axisLine:{lineStyle:{color:'rgba(0,200,255,.25)'}},axisTick:{show:false},
+      axisLabel:{color:'#5f8cb5',fontSize:10,interval:3}},
+    yAxis:{type:'value',name:'AQI',nameTextStyle:{color:'#5f8cb5',fontSize:10},
+      splitLine:{lineStyle:{color:'rgba(0,200,255,.08)'}},
+      axisLabel:{color:'#5f8cb5',fontSize:10}},
+    series:[
+      {name:'今日',type:'line',smooth:true,symbol:'none',data:d1,
+        lineStyle:{color:'#2fd4ff',width:2.5},
+        areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[
+          {offset:0,color:'rgba(0,190,255,.35)'},{offset:1,color:'rgba(0,190,255,0)'}]}},
+        markPoint:{data:[{type:'max',name:'峰值'}],symbolSize:38,
+          itemStyle:{color:'rgba(0,190,255,.95)'},label:{color:'#04121f',fontSize:10}},
+        markLine:{silent:true,symbol:'none',data:[{type:'average'}],
+          lineStyle:{color:'rgba(143,220,255,.45)',type:'dashed',width:1},
+          label:{color:'#7ba6c9',fontSize:9,formatter:'均值 {c}'}}},
+      {name:'昨日',type:'line',smooth:true,symbol:'none',data:d2,
+        lineStyle:{color:'#5a7ba6',width:1.4,type:'dashed'}}]};
+}
+function rankOption(hl){
+  var names=RANK.map(function(d){return d.n});
+  var data=RANK.map(function(d){
+    var is=d.n===hl;
+    return {value:d.v,
+      itemStyle:{color:{type:'linear',x:0,y:0,x2:1,y2:0,colorStops:is?
+        [{offset:0,color:'#ff5c5c'},{offset:1,color:'#ffb14e'}]:
+        [{offset:0,color:'rgba(0,190,255,.12)'},{offset:1,color:'rgba(0,190,255,.8)'}]},
+        borderRadius:[0,5,5,0]},
+      label:{show:true,position:'right',color:is?'#ff8f8f':'#9fd8ff',
+        fontWeight:is?'bold':'normal',fontSize:10,formatter:'{c}'}};
+  });
+  return {backgroundColor:'transparent',
+    grid:{left:58,right:38,top:8,bottom:8},
+    tooltip:Object.assign({trigger:'axis',axisPointer:{type:'shadow'}},TIP),
+    xAxis:{type:'value',show:false,max:60},
+    yAxis:{type:'category',inverse:true,data:names,axisTick:{show:false},
+      axisLine:{show:false},axisLabel:{color:'#cfe8ff',fontSize:11}},
+    series:[{type:'bar',data:data,barWidth:9,showBackground:true,
+      backgroundStyle:{color:'rgba(0,190,255,.06)',borderRadius:5},
+      animationDuration:1200}]};
+}
+function pieOption(){
+  return {backgroundColor:'transparent',
+    tooltip:Object.assign({trigger:'item',formatter:'{b}: {c}% ({d}%)'},TIP),
+    legend:{bottom:0,left:'center',textStyle:{color:'#7ba6c9',fontSize:10},
+            itemWidth:10,itemHeight:10,itemGap:8},
+    series:[{type:'pie',radius:['46%','64%'],center:['50%','44%'],
+      itemStyle:{borderColor:'#081527',borderWidth:2},
+      label:{show:false},labelLine:{show:false},
+      color:['#00e5ff','#35c8ff','#ffb800','#ff5c5c','#7b61ff'],
+      data:[{value:32,name:'工业源'},{value:30,name:'扬尘源'},{value:22,name:'机动车'},
+            {value:10,name:'餐饮油烟'},{value:6,name:'其他'}],
+      animationType:'scale',animationEasing:'elasticOut'}],
+    graphic:[{type:'text',left:'center',top:'40%',
+      style:{text:'污染源构成',fill:'#9fd8ff',fontSize:12,fontWeight:'bold'}}]};
+}
+function initCharts(){
+  /* 2 倍分辨率渲染：窗口放大到大屏上文字依然锐利 */
+  function mk(id){return echarts.init(document.getElementById(id),null,{devicePixelRatio:2})}
+  charts.trend=mk('chartTrend');charts.trend.setOption(trendOption(genTrend(52,40),genTrend(54,32)));
+  charts.rank=mk('chartRank');charts.rank.setOption(rankOption(null));
+  charts.pie=mk('chartPie');charts.pie.setOption(pieOption());
+}
+function chartsFail(){
+  ['chartTrend','chartRank','chartPie'].forEach(function(id){
+    document.getElementById(id).innerHTML='<div class="chart-fallback">⚠ 图表组件加载失败，请联网后刷新</div>';
+  });
+}
+/* ========== 地图视图：自由缩放 + 自由平移 ========== */
+var zoomG=document.getElementById('mapZoom'),
+    reticle=document.getElementById('reticle'),
+    retLabel=document.getElementById('retLabel'),
+    alertLayer=document.getElementById('alertLayer'),
+    gzMap=document.getElementById('gzMap'),
+    mapBody=document.getElementById('mapBody'),
+    crossEl=document.getElementById('mapCross');
+var mapView={k:1,x:0,y:0};
+var KMIN=1,KMAX=4;
+function applyView(dur){
+  zoomG.style.transition=dur?('transform '+dur+'s cubic-bezier(.22,.9,.36,1)'):'none';
+  zoomG.style.transform='translate('+mapView.x+'px,'+mapView.y+'px) scale('+mapView.k+')';
+}
+/* 宽松边界：任何缩放级别下都可拖动，只保证地图与视口始终保有 65% 以上重叠 */
+function clampView(){
+  mapView.k=Math.max(KMIN,Math.min(KMAX,mapView.k));
+  mapView.x=Math.max(650-1000*mapView.k,Math.min(350,mapView.x));
+  mapView.y=Math.max(533-820*mapView.k,Math.min(287,mapView.y));
+}
+function flyTo(cx,cy,k,dur){
+  mapView.k=k;
+  mapView.x=500-cx*k;
+  mapView.y=410-cy*k;
+  clampView();applyView(dur||1);
+}
+function resetView(){mapView={k:1,x:0,y:0};applyView(1)}
+function toUser(e){
+  var m=gzMap.getScreenCTM();
+  if(!m)return{x:500,y:410};
+  return new DOMPoint(e.clientX,e.clientY).matrixTransform(m.inverse());
+}
+/* 滚轮缩放（以鼠标为中心） */
+mapBody.addEventListener('wheel',function(e){
+  e.preventDefault();
+  var u=toUser(e);
+  var k2=Math.max(KMIN,Math.min(KMAX,mapView.k*(e.deltaY<0?1.18:1/1.18)));
+  mapView.x=u.x-(u.x-mapView.x)*k2/mapView.k;
+  mapView.y=u.y-(u.y-mapView.y)*k2/mapView.k;
+  mapView.k=k2;
+  clampView();applyView(.18);
+},{passive:false});
+/* 拖拽平移（任意缩放级别，含未放大状态） + 单击判定 */
+var mDrag=null;
+gzMap.addEventListener('pointerdown',function(e){
+  if(e.button!==0)return;
+  mDrag={sx:e.clientX,sy:e.clientY,vx:mapView.x,vy:mapView.y,moved:0,target:e.target};
+  try{gzMap.setPointerCapture(e.pointerId)}catch(_){}
+});
+gzMap.addEventListener('pointermove',function(e){
+  if(!mDrag)return;
+  var dx=e.clientX-mDrag.sx,dy=e.clientY-mDrag.sy;
+  mDrag.moved=Math.max(mDrag.moved,Math.abs(dx)+Math.abs(dy));
+  if(mDrag.moved>5){
+    var ctm=gzMap.getScreenCTM();
+    if(ctm&&ctm.a){
+      mapView.x=mDrag.vx+dx/ctm.a;
+      mapView.y=mDrag.vy+dy/ctm.d;
+      clampView();applyView(0);
+    }
+    mapBody.classList.add('dragging');
+    crossEl.classList.remove('on');
+  }
+});
+gzMap.addEventListener('pointerup',function(e){
+  if(!mDrag)return;
+  var wasClick=mDrag.moved<=5,t=mDrag.target;
+  mDrag=null;
+  mapBody.classList.remove('dragging');
+  if(wasClick){
+    var d=t.closest?t.closest('.district'):null;
+    if(d)openDistrict(d.getAttribute('data-name'));
+  }
+});
+gzMap.addEventListener('dblclick',function(e){e.preventDefault();resetMap()});
+function zoomAt(cx,cy,f){
+  var k2=Math.max(KMIN,Math.min(KMAX,mapView.k*f));
+  mapView.x=cx-(cx-mapView.x)*k2/mapView.k;
+  mapView.y=cy-(cy-mapView.y)*k2/mapView.k;
+  mapView.k=k2;
+  clampView();applyView(.3);
+}
+document.getElementById('mzIn').addEventListener('click',function(){zoomAt(500,410,1.35)});
+document.getElementById('mzOut').addEventListener('click',function(){zoomAt(500,410,1/1.35)});
+document.getElementById('mzReset').addEventListener('click',function(){resetMap()});
+/* ========== 区级数据 + 画像卡 ========== */
+var DIS_STATS={
+ '花都区':{pm:31,rate:92.1,src:41,rank:10,cx:200,cy:155,t:[32,31,30,31,29,30,31]},
+ '从化区':{pm:26,rate:95.8,src:28,rank:11,cx:535,cy:120,t:[27,26,25,26,25,26,26]},
+ '增城区':{pm:29,rate:93.8,src:46,rank:9,cx:805,cy:270,t:[30,29,29,28,29,28,29]},
+ '白云区':{pm:48,rate:78.4,src:126,rank:1,cx:400,cy:285,t:[46,48,50,47,49,48,48]},
+ '黄埔区':{pm:41,rate:83.6,src:104,rank:3,cx:725,cy:360,t:[42,41,43,40,42,41,41]},
+ '荔湾区':{pm:38,rate:86.5,src:73,rank:4,cx:155,cy:395,t:[39,38,37,39,38,37,38]},
+ '越秀区':{pm:33,rate:90.2,src:58,rank:7,cx:368,cy:450,t:[34,33,33,34,32,33,33]},
+ '天河区':{pm:36,rate:88.9,src:82,rank:5,cx:525,cy:435,t:[37,36,36,35,36,35,36]},
+ '海珠区':{pm:35,rate:89.3,src:66,rank:6,cx:395,cy:585,t:[36,35,34,35,34,35,35]},
+ '番禺区':{pm:43,rate:82.2,src:97,rank:2,cx:615,cy:640,t:[44,43,45,42,44,43,43]},
+ '南沙区':{pm:30,rate:92.6,src:52,rank:8,cx:650,cy:778,t:[31,30,30,29,30,30,30]}
+};
+function sparkPath(arr){
+  var min=Math.min.apply(null,arr),max=Math.max.apply(null,arr),span=(max-min)||1;
+  var pts=arr.map(function(v,i){return [10+i*(220/(arr.length-1)),46-(v-min)/span*36]});
+  var d='M'+pts.map(function(p){return p[0].toFixed(1)+','+p[1].toFixed(1)}).join(' L');
+  var fill=d+' L230,54 L10,54 Z';
+  return '<path d="'+fill+'" fill="rgba(0,180,255,.18)"/>'+
+    '<path d="'+d+'" fill="none" stroke="#4fd0ff" stroke-width="1.6" stroke-linejoin="round"/>'+
+    pts.map(function(p){return '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="1.8" fill="#bfe8ff"/>'}).join('');
+}
+function openDistrict(name){
+  var s=DIS_STATS[name];if(!s)return;
+  document.querySelectorAll('.district.hot').forEach(function(el){el.classList.remove('hot')});
+  document.querySelectorAll('.district').forEach(function(el){
+    if(el.getAttribute('data-name')===name)el.classList.add('hot');
+  });
+  flyTo(s.cx,s.cy,1.8,1);
+  var card=document.getElementById('districtCard');
+  card.innerHTML=
+    '<div class="dc-head"><span class="dc-name">'+name+'</span>'+
+    '<span class="dc-rank">全市 PM2.5 第 '+s.rank+' 位</span>'+
+    '<button class="dc-close">✕</button></div>'+
+    '<div class="dc-grid">'+
+      '<div class="dc-cell"><i>PM2.5</i><b>'+s.pm+'</b><em>μg/m³</em></div>'+
+      '<div class="dc-cell"><i>优良率</i><b>'+s.rate+'</b><em>%</em></div>'+
+      '<div class="dc-cell"><i>重点源</i><b>'+s.src+'</b><em>家</em></div>'+
+    '</div>'+
+    '<div class="dc-sub">近 7 日 PM2.5 走势（μg/m³）</div>'+
+    '<svg class="dc-spark" viewBox="0 0 240 56">'+sparkPath(s.t)+'</svg>'+
+    '<div class="dc-btns"><button>生成区级报告</button><button>污染溯源分析</button></div>';
+  card.classList.remove('hidden');
+  card.querySelector('.dc-close').addEventListener('click',function(){resetMap()});
+  card.querySelectorAll('.dc-btns button').forEach(function(b,i){
+    b.addEventListener('click',function(){
+      sysMsg('【'+name+'】'+(i?'污染溯源分析任务已提交 · AI 正在生成溯源路径':'区级生态环境报告生成任务已提交')+'（演示）');
+    });
+  });
+  sysMsg('【地图下钻】已切换至 '+name+' 视角 · PM2.5 '+s.pm+' μg/m³ · 优良率 '+s.rate+'% · 重点污染源 '+s.src+' 家');
+  ++mapToken;
+}
+/* ========== 地图联动动作 ========== */
+var mapToken=0;
+function resetMap(){
+  document.querySelectorAll('.district.hot').forEach(function(e){e.classList.remove('hot')});
+  reticle.classList.add('hidden');
+  document.querySelectorAll('#alertLayer > g').forEach(function(e){e.remove()});
+  document.getElementById('districtCard').classList.add('hidden');
+  resetView();
+  if(charts.rank)charts.rank.setOption(rankOption(null));
+}
+function scheduleReset(){var t=++mapToken;
+  setTimeout(function(){if(t===mapToken)resetMap();},12000);}
+function showReticle(x,y,label){
+  reticle.setAttribute('transform','translate('+x+','+y+')');
+  retLabel.textContent=label;reticle.classList.remove('hidden');
+}
+function addAlertPoint(x,y,label){
+  var ns='http://www.w3.org/2000/svg',g=document.createElementNS(ns,'g');
+  g.setAttribute('class','poi sev-red');g.setAttribute('transform','translate('+x+','+y+')');
+  g.innerHTML='<circle class="halo" r="10"/><circle class="ripple" r="8"/><circle class="core" r="5"/><text x="12" y="4">'+label+'</text>';
+  alertLayer.appendChild(g);
+}
+function showReport(){
+  var rc=document.getElementById('reportCard'),
+      bar=rc.querySelector('.rc-progress i'),
+      st=rc.querySelector('.rc-status');
+  rc.classList.remove('hidden');
+  bar.style.transition='none';bar.style.width='0';
+  requestAnimationFrame(function(){requestAnimationFrame(function(){
+    bar.style.transition='width 1.8s cubic-bezier(.3,.7,.3,1)';bar.style.width='100%';});});
+  st.textContent='数据采集 · 指标校验 · 排版输出…';st.classList.remove('ok');
+  setTimeout(function(){st.textContent='✓ 报告已生成 · 已推送至政务协同平台';st.classList.add('ok');},2000);
+  setTimeout(function(){rc.classList.add('hidden');},5200);
+}
+var Actions={
+  locateWorst:function(){
+    resetMap();
+    openDistrict('白云区');
+    showReticle(350,300,'白云区 · 污染负荷 TOP1');
+    if(charts.rank)charts.rank.setOption(rankOption('白云区'));
+    scheduleReset();
+  },
+  replayTrend:function(){
+    if(charts.trend)charts.trend.setOption({series:[{data:genTrend(52,40)},{data:genTrend(54,32)}]});
+  },
+  alertEnt:function(){
+    resetMap();
+    addAlertPoint(800,420,'⚠ 废气SO₂异常 · 二级预警');
+    addAlertPoint(405,298,'⚠ 废水pH超标 · 工单已派发');
+    flyTo(600,360,1.5,1);
+    scheduleReset();
+  },
+  report:function(){showReport();}
+};
+/* ========== 十字线 + 经纬度 ========== */
+(function(){   
+  var cc=document.getElementById('crossCoord');
+  function fmt(v){
+    var d=Math.floor(v),mF=(v-d)*60,m=Math.floor(mF),s=Math.round((mF-m)*60);
+    if(s===60){s=0;m++}if(m===60){m=0;d++}
+    return d+'°'+(m<10?'0':'')+m+'′'+(s<10?'0':'')+s+'″';
+  }
+  mapBody.addEventListener('mousemove',function(e){
+    if(mDrag&&mDrag.moved>5)return;
+    var r=mapBody.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
+    crossEl.style.setProperty('--x',x+'px');crossEl.style.setProperty('--y',y+'px');
+    crossEl.classList.add('on');
+    var lon=113.055+x/r.width*0.42,lat=23.395-y/r.height*0.42;
+    cc.textContent='E '+fmt(lon)+'  N '+fmt(lat)+' · 网格 '+(1+Math.floor(x/120))+'-'+(1+Math.floor(y/120));
+    cc.classList.toggle('flip',x>r.width-240);
+  });
+  mapBody.addEventListener('mouseleave',function(){crossEl.classList.remove('on')});
+})();
+/* ========== AI 对话 ========== */
+var chatBox=document.getElementById('chatBox'),busy=false;
+var SVG_AI='<svg viewBox="0 0 24 24" width="18" height="18"><rect x="4" y="7" width="16" height="12" rx="3" fill="none" stroke="#00d4ff" stroke-width="1.6"/><circle cx="9.5" cy="13" r="1.4" fill="#00d4ff"/><circle cx="14.5" cy="13" r="1.4" fill="#00d4ff"/><path d="M12 7V4M10 4h4" stroke="#00d4ff" stroke-width="1.6" fill="none"/><path d="M9 16.5h6" stroke="#00d4ff" stroke-width="1.2"/></svg>';
+var SVG_USER='<svg viewBox="0 0 24 24" width="18" height="18"><circle cx="12" cy="8" r="3.4" fill="none" stroke="#35c8ff" stroke-width="1.6"/><path d="M5 20c1.2-3.8 3.8-5.6 7-5.6s5.8 1.8 7 5.6" fill="none" stroke="#35c8ff" stroke-width="1.6"/></svg>';
+function scrollChat(){chatBox.scrollTop=chatBox.scrollHeight}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function addMsg(cls,html){
+  var d=document.createElement('div');d.className='msg '+cls;
+  var av=cls==='ai'?'<div class="avatar av-ai">'+SVG_AI+'</div>':
+         cls==='user'?'<div class="avatar av-user">'+SVG_USER+'</div>':'';
+  d.innerHTML=av+'<div class="bubble">'+html+'</div>';
+  chatBox.appendChild(d);scrollChat();return d;
+}
+function sysMsg(t){addMsg('sys',esc(t))}
+function typeAI(text,done){
+  var bubble=addMsg('ai','').querySelector('.bubble');
+  var i=0;
+  (function tick(){
+    if(i>=text.length){
+      var c=bubble.querySelector('.cursor');if(c)c.remove();
+      done&&done();return;
+    }
+    i++;
+    bubble.innerHTML=esc(text.slice(0,i)).replace(/\n/g,'<br>')+'<span class="cursor"></span>';
+    scrollChat();
+    setTimeout(tick,16+Math.random()*20);
+  })();
+}
+function thinking(cb){
+  var m=addMsg('ai','<span class="dots"><i></i><i></i><i></i></span><span class="tlabel">AI 检索分析中</span>');
+  setTimeout(function(){m.remove();cb();},800+Math.random()*400);
+}
+var AI_DB=[
+  {q:'本月哪个片区污染最严重？',
+   a:'【分析结论】本月白云区污染负荷居全市首位：PM2.5 月均 48 μg/m³，同比上升 6.2%。\n主要贡献源：扬尘源 38% · 工业源 29% · 机动车 21%。\n建议：加大对太和、钟落潭片区在建工地扬尘管控力度。\n——已为您下钻至白云区视角并联动排名图表',act:'locateWorst'},
+  {q:'分析今日 AQI 变化趋势',
+   a:'【趋势研判】今日 AQI 呈「先升后降」走势：\n早高峰 08–10 时受交通排放与不利气象叠加影响，升至峰值 96（良）；\n午后扩散条件转好，预计 18 时回落至 65 以下。\n提示：持续关注傍晚臭氧累积风险。',act:'replayTrend'},
+  {q:'调取重点监管企业在线情况',
+   a:'【调度结果】全市 86 家重点排污企业已接入在线监测：\n在线率 97.7% · 超标预警 2 家\n▸ 黄埔区某企业：废气 SO₂ 数据异常（二级预警）\n▸ 白云区某企业：废水 pH 超标（已自动派发执法工单）\n——预警点位已在地图标记',act:'alertEnt'},
+  {q:'生成今日环境质量报告',
+   a:'【报告生成】正在采集数据、校验指标、排版输出…\n《生态环境质量快报》已生成：\n空气优良率 89.6% · 水环境达标率 92.3% · 噪声均值 54.6 dB\n已推送至政务协同平台。',act:'report'}
+];
+function setChips(on){
+  document.querySelectorAll('.chip').forEach(function(c){c.classList.toggle('off',!on)});
+}
+function runQuestion(idx){
+  if(busy)return;busy=true;setChips(false);
+  var it=AI_DB[idx];
+  addMsg('user',esc(it.q));
+  thinking(function(){
+    typeAI(it.a,function(){
+      Actions[it.act]&&Actions[it.act]();
+      busy=false;setChips(true);
+    });
+  });
+}
+document.querySelectorAll('.chip').forEach(function(c){
+  c.addEventListener('click',function(){runQuestion(parseInt(c.getAttribute('data-idx'),10))});
+});
+function sendFree(){
+  var inp=document.getElementById('chatInput'),v=inp.value.trim();
+  if(!v||busy)return;busy=true;setChips(false);inp.value='';
+  addMsg('user',esc(v));
+  thinking(function(){
+    typeAI('指令已接收，正在检索全市生态环境数据库…\n（演示版内置 4 个联动分析场景，点击左侧快捷提问，可体验「一句话驱动全屏联动」效果）',
+      function(){busy=false;setChips(true);});
+  });
+}
+document.getElementById('sendBtn').addEventListener('click',sendFree);
+document.getElementById('chatInput').addEventListener('keydown',function(e){
+  if(e.key==='Enter')sendFree();
+});
+var AMBIENT=[
+  '【AI 巡检】完成 32 个空气站数据质检 · 无异常',
+  '【模型推理】臭氧 8h 滑动均值预测：明日 138 μg/m³（良）',
+  '【数据链路】黑烟车抓拍今日 +17 条 · 识别准确率 98.4%',
+  '【智能推送】《污染源自动监控日报》已推送至 12 个部门'
+];
+/* ========== 主驾驶舱 进入/退出 ========== */
+function enterMain(){
+  if(!mainBooted){
+    mainBooted=true;
+    document.querySelectorAll('.num').forEach(function(el){
+      roll(el,parseFloat(el.getAttribute('data-target')),parseInt(el.getAttribute('data-dec')||'0',10),1700);
+    });
+    loadECharts(initCharts,chartsFail);
+    var aqiNow=72,aqiEl=document.getElementById('aqiNum');
+    setInterval(function(){
+      aqiNow=Math.max(62,Math.min(84,aqiNow+Math.round(Math.random()*4-2)));
+      roll(aqiEl,aqiNow,0,600);
+    },6000);
+    setInterval(function(){sysMsg(AMBIENT[Math.floor(Math.random()*AMBIENT.length)])},26000);
+    setTimeout(function(){sysMsg('数据链路已接入 · 34 个监测系统 · 5,231 类数据源 · AI 引擎就绪')},700);
+    setTimeout(function(){
+      typeAI('您好，我是生态环境 AI 助手。已接入全市空气、水、污染源在线监测数据。\n您可以直接下达指令，或点击下方快捷提问——我将联动整个大屏为您分析。');
+    },1300);
+    setTimeout(function(){if(!busy)runQuestion(0)},7500);
+  }
+  MAIN_ON=true;
+  document.getElementById('screen').classList.remove('pre');
+}
+function exitMain(){
+  MAIN_ON=false;
+  document.getElementById('screen').classList.add('pre');
+  resetMap();
+}
+/* ========== 地球场景 ========== */
+(function(){
+  var cv=document.getElementById('globeCv'),ctx=cv.getContext('2d');
+  var scene=document.getElementById('globeScene');
+  var D2R=Math.PI/180;
+  var CX=960,CY=530,R0=300,R=R0;
+  var GZ={lon:113.26*D2R,lat:23.13*D2R};
+  var BASE=0.05;
+  var rotLon=-GZ.lon-0.55,rotLat=0.30,vel=BASE;
+  var state='idle';
+  var cosR=Math.cos(rotLat),sinR=Math.sin(rotLat);
+  var gzPos={x:0,y:0,z:0},hoverGZ=false;
+  var stars=[],land=[],clouds=[],tweens=[];
+  var CITIES=[
+    {lon:116.4,lat:39.9,name:'北京市',tip:'北京市数据接入中 · 当前版本仅支持广州市',sx:null,sy:null},
+    {lon:121.5,lat:31.2,name:'上海市',tip:'上海市数据接入中 · 当前版本仅支持广州市',sx:null,sy:null}
+  ];
+  var LIGHTS=[[117.2,39.1],[114.3,30.6],[113.6,34.8],[108.9,34.3],[104.1,30.7],[106.5,29.6],
+    [126.6,45.8],[123.4,41.8],[114.1,22.3],[108.3,22.8],[110.3,20.0],[119.3,26.1],
+    [139.7,35.7],[135.5,34.7],[127,37.5],[72.9,19.1],[77.2,28.6],[88.4,22.6],[100.5,13.8],
+    [37.6,55.8],[30.3,59.9],[-0.1,51.5],[2.35,48.85],[13.4,52.5],[12.5,41.9],[28.98,41],
+    [31.2,30],[36.8,-1.3],[-74,40.7],[-87.6,41.9],[-118.2,34],[-122.4,37.8],[-95.4,29.8],
+    [-79.4,43.7],[-99.1,19.4],[-46.6,-23.5],[-58.4,-34.6],[151.2,-33.9],[144.9,-37.8]];
+  for(var i=0;i<130;i++)stars.push({x:Math.random()*1920,y:Math.random()*1080,
+    r:Math.random()*1.2+.3,p:Math.random()*6.28,s:Math.random()*1.5+.5});
+  var LAND=[
+    {r:[-168,-140,60,72],n:110},{r:[-128,-95,48,72],n:170},{r:[-95,-58,46,70],n:150},
+    {r:[-124,-70,30,48],n:200},{r:[-106,-80,14,30],n:130},{r:[-92,-72,6,18],n:90},
+    {r:[-52,-20,60,82],n:70,ice:1},{r:[-79,-50,0,12],n:110},{r:[-74,-35,-24,4],n:150},
+    {r:[-73,-56,-42,-20],n:90},{r:[-72,-66,-55,-41],n:50},
+    {r:[-10,-2,36,44],n:70},{r:[-7,2,50,58],n:60},{r:[-1,30,44,56],n:160},
+    {r:[4,30,56,70],n:110},{r:[8,18,37,46],n:50},{r:[12,44,36,46],n:150},
+    {r:[-13,12,20,34],n:120},{r:[10,36,20,32],n:90},{r:[-17,15,4,20],n:140},
+    {r:[8,42,-6,12],n:150},{r:[12,40,-34,0],n:120},{r:[43,50,-26,-13],n:40},
+    {r:[32,62,50,72],n:100},{r:[62,140,50,74],n:130},{r:[46,88,36,54],n:150},
+    {r:[34,60,12,32],n:120},{r:[68,90,8,30],n:130},
+    {r:[74,122,20,50],n:260,cn:1},{r:[120,135,40,53],n:60},
+    {r:[97,110,8,23],n:60},{r:[99,105,1,8],n:25},{r:[95,140,-9,1],n:70},
+    {r:[118,127,6,19],n:25},{r:[129,142,32,44],n:35},
+    {r:[114,152,-38,-11],n:110},{r:[166,178,-47,-34],n:40},
+    {r:[-180,180,-90,-72],n:120,ice:1},{r:[-180,-160,70,80],n:20,ice:1},{r:[160,180,70,80],n:20,ice:1}
+  ];
+  LAND.forEach(function(b){
+    for(var k=0;k<b.n;k++){
+      land.push({lon:(b.r[0]+Math.random()*(b.r[1]-b.r[0]))*D2R,
+        lat:(b.r[2]+Math.random()*(b.r[3]-b.r[2]))*D2R,
+        cn:!!b.cn,ice:!!b.ice,
+        sz:.6+Math.pow(Math.random(),2)*1.5,
+        br:.55+Math.random()*.45});
+    }
+  });
+  for(var c=0;c<230;c++)clouds.push({lon:(Math.random()*360-180)*D2R,
+    lat:(Math.random()*160-80)*D2R,sz:3+Math.random()*7,a:.05+Math.random()*.09});
+  function proj(lon,lat,rr){
+    var rad=rr||R,cl=Math.cos(lat);
+    var x=cl*Math.sin(lon+rotLon),y=Math.sin(lat),z=cl*Math.cos(lon+rotLon);
+    var y2=y*cosR-z*sinR,z2=y*sinR+z*cosR;
+    return {x:CX+x*rad,y:CY-y2*rad,z:z2};
+  }
+  function roundRect(x,y,w,h,r){
+    ctx.beginPath();
+    ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();
+  }
+  function strokeArc(gen,back,alpha){
+    ctx.strokeStyle='rgba(70,160,255,'+alpha+')';
+    ctx.beginPath();
+    var pen=false;
+    gen(function(q){
+      var vis=back?q.z<=0:q.z>0;
+      if(vis){if(!pen){ctx.moveTo(q.x,q.y);pen=true}else ctx.lineTo(q.x,q.y);}
+      else pen=false;
+    });
+    ctx.stroke();
+  }
+  function drawGrid(back){
+    ctx.lineWidth=1;
+    var mul=back?0.28:1;
+    [-60,-30,0,30,60].forEach(function(lat){
+      strokeArc(function(cb){
+        for(var lo=-180;lo<=180;lo+=6)cb(proj(lo*D2R,lat*D2R));
+      },back,(Math.abs(lat)<1?0.34:0.17)*mul);
+    });
+    for(var k=0;k<12;k++){
+      (function(lon){
+        strokeArc(function(cb){
+          for(var la=-84;la<=84;la+=6)cb(proj(lon*D2R,la*D2R));
+        },back,0.13*mul);
+      })(k*30);
+    }
+  }
+  var ORBITS=[
+    {rx:1.52,ry:.44,tilt:-18*D2R,sp:2*Math.PI/14,ph:0},
+    {rx:1.74,ry:.6,tilt:24*D2R,sp:-2*Math.PI/21,ph:2.1}
+  ];
+  function drawOrbit(i,t,back){
+    var o=ORBITS[i],rx=R*o.rx,ry=R*o.ry;
+    ctx.save();ctx.translate(CX,CY);ctx.rotate(o.tilt);
+    ctx.strokeStyle='rgba(0,180,255,'+(back?0.09:0.2)+')';ctx.lineWidth=1;
+    ctx.beginPath();
+    if(back)ctx.ellipse(0,0,rx,ry,0,Math.PI,2*Math.PI);
+    else ctx.ellipse(0,0,rx,ry,0,0,Math.PI);
+    ctx.stroke();
+    var a=t*o.sp+o.ph,sx=rx*Math.cos(a),sy=ry*Math.sin(a);
+    if((Math.sin(a)<0)===back){
+      var sg=ctx.createRadialGradient(sx,sy,0,sx,sy,11);
+      sg.addColorStop(0,'rgba(180,235,255,.9)');sg.addColorStop(1,'rgba(0,190,255,0)');
+      ctx.fillStyle=sg;ctx.beginPath();ctx.arc(sx,sy,11,0,6.283);ctx.fill();
+      ctx.fillStyle='#e3f8ff';ctx.beginPath();ctx.arc(sx,sy,2.4,0,6.283);ctx.fill();
+    }
+    ctx.restore();
+  }
+  function drawCities(t){
+    CITIES.forEach(function(c){
+      var q=proj(c.lon*D2R,c.lat*D2R);
+      if(q.z<0.05){c.sx=null;return}
+      c.sx=q.x;c.sy=q.y;
+      ctx.fillStyle='rgba(140,170,210,'+(0.25+q.z*0.3)+')';
+      ctx.beginPath();ctx.arc(q.x,q.y,2.2,0,6.283);ctx.fill();
+      ctx.setLineDash([3,3]);
+      ctx.strokeStyle='rgba(140,175,215,'+(0.15+q.z*0.2)+')';
+      ctx.beginPath();ctx.arc(q.x,q.y,7,0,6.283);ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle='rgba(150,185,220,'+(0.3+q.z*0.35)+')';
+      ctx.font='10px Consolas,monospace';
+      ctx.fillText(c.name+' · 接入中',q.x+11,q.y+3);
+    });
+    var q=proj(GZ.lon,GZ.lat);gzPos=q;
+    if(q.z>0.05){
+      var a=Math.min(1,(q.z-0.05)/0.5);
+      for(var k=0;k<2;k++){
+        var p=(t*0.55+k*0.5)%1;
+        ctx.strokeStyle='rgba(0,200,255,'+(1-p)*0.5*a+')';
+        ctx.lineWidth=1.4;
+        ctx.beginPath();ctx.arc(q.x,q.y,5+p*30,0,6.283);ctx.stroke();
+      }
+      var cg=ctx.createRadialGradient(q.x,q.y,0,q.x,q.y,16);
+      cg.addColorStop(0,'rgba(150,230,255,.95)');cg.addColorStop(1,'rgba(0,190,255,0)');
+      ctx.fillStyle=cg;ctx.beginPath();ctx.arc(q.x,q.y,16,0,6.283);ctx.fill();
+      ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(q.x,q.y,3,0,6.283);ctx.fill();
+      var lx=q.x+14,ly=q.y-14,ex=lx+26,ey=ly-26;
+      ctx.strokeStyle='rgba(0,200,255,'+(0.5+0.4*hoverGZ)+')';ctx.lineWidth=1.2;
+      ctx.beginPath();ctx.moveTo(q.x+5,q.y-5);ctx.lineTo(lx,ly);ctx.lineTo(ex,ey);ctx.lineTo(ex+10,ey);ctx.stroke();
+      ctx.font='bold 15px "Microsoft YaHei",sans-serif';
+      var w1=ctx.measureText('广州市').width;
+      ctx.font='10px "Microsoft YaHei",sans-serif';
+      var w2=ctx.measureText('点击进入').width;
+      var bw=Math.max(w1,w2)+18,bh=44,bx=ex+12,by=ey-bh+4;
+      if(bx+bw>1900)bx=q.x-bw-60;
+      ctx.fillStyle='rgba(6,18,38,.88)';
+      ctx.strokeStyle='rgba(0,200,255,'+(hoverGZ?0.85:0.45)+')';
+      roundRect(bx,by,bw,bh,4);ctx.fill();ctx.stroke();
+      ctx.fillStyle=hoverGZ?'#e6f7ff':'#9fd8ff';
+      ctx.font='bold 15px "Microsoft YaHei",sans-serif';
+      ctx.fillText('广州市',bx+9,by+19);
+      ctx.fillStyle=hoverGZ?'#7fd8ff':'#4f9db8';
+      ctx.font='10px "Microsoft YaHei",sans-serif';
+      ctx.fillText(hoverGZ?'点击进入 →':'点击进入',bx+9,by+35);
+    }
+  }
+  var lockT0=0;
+  function drawLock(t){
+    var p=Math.min((t-lockT0)/0.7,1),e=1-Math.pow(1-p,3);
+    var r=180-(180-16)*e;
+    var q=proj(GZ.lon,GZ.lat);
+    ctx.save();ctx.translate(q.x,q.y);
+    ctx.strokeStyle='rgba(0,200,255,.85)';ctx.lineWidth=1.6;
+    ctx.setLineDash([10,8]);ctx.lineDashOffset=-t*40;
+    ctx.beginPath();ctx.arc(0,0,r,0,6.283);ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.beginPath();
+    ctx.moveTo(-r-12,0);ctx.lineTo(-r+6,0);
+    ctx.moveTo(r-6,0);ctx.lineTo(r+12,0);
+    ctx.moveTo(0,-r-12);ctx.lineTo(0,-r+6);
+    ctx.moveTo(0,r-6);ctx.lineTo(0,r+12);
+    ctx.stroke();
+    ctx.restore();
+  }
+  function draw(t){
+    ctx.clearRect(0,0,1920,1080);
+    stars.forEach(function(s){
+      var a=.25+.45*(.5+.5*Math.sin(t*s.s+s.p));
+      ctx.fillStyle='rgba(180,220,255,'+a+')';
+      ctx.fillRect(s.x,s.y,s.r,s.r);
+    });
+    drawOrbit(0,t,true);drawOrbit(1,t,true);
+    var g=ctx.createRadialGradient(CX-R*.38,CY-R*.4,R*.08,CX,CY,R);
+    g.addColorStop(0,'rgba(24,78,168,.76)');
+    g.addColorStop(.55,'rgba(10,40,110,.85)');
+    g.addColorStop(1,'rgba(4,15,58,.94)');
+    ctx.fillStyle=g;ctx.beginPath();ctx.arc(CX,CY,R,0,6.283);ctx.fill();
+    drawGrid(true);
+    land.forEach(function(p){
+      var q=proj(p.lon,p.lat);
+      if(q.z>0||q.z<-0.3)return;
+      ctx.fillStyle='rgba(30,110,220,.05)';
+      ctx.fillRect(q.x-.5,q.y-.5,1,1);
+    });
+    var zk=Math.max(1,Math.min(1.9,R/R0));
+    land.forEach(function(p){
+      var q=proj(p.lon,p.lat);
+      if(q.z<=0.015)return;
+      var sz=(.7+q.z*1.5)*zk*p.sz;
+      if(p.ice){
+        ctx.fillStyle='rgba(228,244,255,'+((.45+q.z*.5)*p.br)+')';
+      }else if(p.cn){
+        ctx.fillStyle='rgba(150,225,255,'+((.4+q.z*.55)*p.br)+')';
+      }else{
+        ctx.fillStyle='rgba(75,165,255,'+((.28+q.z*.5)*p.br)+')';
+      }
+      ctx.beginPath();ctx.arc(q.x,q.y,sz,0,6.283);ctx.fill();
+    });
+    drawGrid(false);
+    LIGHTS.forEach(function(l){
+      var q=proj(l[0]*D2R,l[1]*D2R);
+      if(q.z<=0.1)return;
+      var lg=ctx.createRadialGradient(q.x,q.y,0,q.x,q.y,6*zk);
+      lg.addColorStop(0,'rgba(185,235,255,'+(.5*q.z)+')');
+      lg.addColorStop(1,'rgba(185,235,255,0)');
+      ctx.fillStyle=lg;ctx.beginPath();ctx.arc(q.x,q.y,6*zk,0,6.283);ctx.fill();
+      ctx.fillStyle='rgba(225,250,255,'+(.5+q.z*.4)+')';
+      ctx.beginPath();ctx.arc(q.x,q.y,1.1*zk,0,6.283);ctx.fill();
+    });
+    ctx.strokeStyle='rgba(90,180,255,.5)';ctx.lineWidth=1.3;
+    ctx.beginPath();ctx.arc(CX,CY,R,0,6.283);ctx.stroke();
+    ctx.save();ctx.beginPath();ctx.arc(CX,CY,R,0,6.283);ctx.clip();
+    clouds.forEach(function(cl){
+      var q=proj(cl.lon+t*0.01,cl.lat,R*1.012);
+      if(q.z<=0.02)return;
+      ctx.fillStyle='rgba(205,232,255,'+(cl.a*(0.3+q.z*0.7))+')';
+      ctx.beginPath();ctx.arc(q.x,q.y,cl.sz*zk,0,6.283);ctx.fill();
+    });
+    var hg=ctx.createRadialGradient(CX-R*.42,CY-R*.46,0,CX-R*.42,CY-R*.46,R*.5);
+    hg.addColorStop(0,'rgba(170,215,255,.16)');hg.addColorStop(1,'rgba(170,215,255,0)');
+    ctx.fillStyle=hg;ctx.beginPath();ctx.arc(CX,CY,R,0,6.283);ctx.fill();
+    ctx.restore();
+    var ag=ctx.createRadialGradient(CX,CY,R*.97,CX,CY,R*1.4);
+    ag.addColorStop(0,'rgba(30,150,255,.28)');ag.addColorStop(.3,'rgba(0,140,255,.10)');ag.addColorStop(1,'rgba(0,140,255,0)');
+    ctx.fillStyle=ag;ctx.beginPath();ctx.arc(CX,CY,R*1.4,0,6.283);ctx.fill();
+    drawOrbit(0,t,false);drawOrbit(1,t,false);
+    drawCities(t);
+    if(state==='lock')drawLock(t);
+  }
+  var last=performance.now();
+  function loop(ts){
+    if(state==='done')return;
+    var dt=Math.min((ts-last)/1000,.05);last=ts;
+    for(var i=tweens.length-1;i>=0;i--){
+      var tw=tweens[i],p=Math.min((performance.now()-tw.st)/tw.d,1);
+      var v=p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2;
+      rotLon=tw.f.lon+(tw.t.lon-tw.f.lon)*v;
+      rotLat=tw.f.lat+(tw.t.lat-tw.f.lat)*v;
+      if(p>=1){tweens.splice(i,1);tw.cb&&tw.cb();}
+    }
+    if(state==='idle'){
+      rotLon+=vel*dt;
+      vel=BASE+(vel-BASE)*Math.exp(-dt*1.6);
+    }
+    cosR=Math.cos(rotLat);sinR=Math.sin(rotLat);
+    draw(ts/1000);
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+  /* ---- 交互 ---- */
+  var drag=null;
+  function toXY(e){
+    var r=cv.getBoundingClientRect();
+    return {x:(e.clientX-r.left)/r.width*1920,y:(e.clientY-r.top)/r.height*1080};
+  }
+  cv.addEventListener('pointerdown',function(e){
+    if(state!=='idle')return;
+    var p=toXY(e);
+    drag={x:p.x,y:p.y,moved:0,t:Date.now(),vx:0};
+    state='drag';cv.classList.add('drag');
+    if(cv.setPointerCapture)try{cv.setPointerCapture(e.pointerId)}catch(_){}
+  });
+  cv.addEventListener('pointermove',function(e){
+    var p=toXY(e);
+    if(state==='drag'&&drag){
+      var dx=p.x-drag.x,dy=p.y-drag.y;
+      drag.moved+=Math.abs(dx)+Math.abs(dy);
+      rotLon+=dx*0.0042;
+      rotLat=Math.max(-1.15,Math.min(1.15,rotLat-dy*0.0042));
+      drag.vx=dx*0.0042*60;
+      drag.x=p.x;drag.y=p.y;
+    }else if(state==='idle'){
+      hoverGZ=(gzPos.z>0.1&&Math.hypot(p.x-gzPos.x,p.y-gzPos.y)<52);
+      cv.classList.toggle('gz',hoverGZ);
+    }
+  });
+  window.addEventListener('pointerup',function(e){
+    if(state!=='drag'||!drag)return;
+    var p=toXY(e);
+    var isClick=drag.moved<8&&(Date.now()-drag.t)<600;
+    state='idle';cv.classList.remove('drag');
+    vel=Math.max(-2.5,Math.min(2.5,drag.vx))||BASE;
+    drag=null;
+    if(isClick){
+      if(gzPos.z>0.1&&Math.hypot(p.x-gzPos.x,p.y-gzPos.y)<52){enterGZ();return}
+      CITIES.forEach(function(c){
+        if(c.sx!=null&&Math.hypot(p.x-c.sx,p.y-c.sy)<34)showToast(c.tip);
+      });
+    }
+  });
+  var toastTimer=null;
+  function showToast(t){
+    var el=document.getElementById('gsToast');
+    el.textContent=t;el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer=setTimeout(function(){el.classList.remove('show')},2200);
+  }
+  /* ---- 进入广州 ---- */
+  function enterGZ(){
+    if(state!=='idle')return;
+    state='lock';cv.classList.remove('gz');hoverGZ=false;
+    document.getElementById('gsHint').style.display='none';
+    document.getElementById('gsSkip').style.display='none';
+    lockT0=performance.now()/1000;
+    var tLon=-GZ.lon,tLat=GZ.lat;
+    while(tLon-rotLon>Math.PI)tLon-=2*Math.PI;
+    while(tLon-rotLon<-Math.PI)tLon+=2*Math.PI;
+    tweens.push({f:{lon:rotLon,lat:rotLat},t:{lon:tLon,lat:tLat},d:900,
+      st:performance.now(),cb:function(){setTimeout(startZoom,250)}});
+  }
+  function startZoom(){
+    state='zoom';
+    document.getElementById('gsLoading').classList.remove('hidden');
+    var fg=document.getElementById('gsFg'),pct=document.getElementById('gsPct'),
+        stage=document.getElementById('gsStage');
+    var STAGES=['接入卫星遥感链路','汇聚 34 个监测系统 · 5,231 类数据源',
+                '启动生态环境 AI 分析引擎','构建城市数字孪生场景'];
+    var si=0;stage.textContent=STAGES[0];
+    var stTimer=setInterval(function(){
+      si++;
+      if(si<STAGES.length){
+        stage.textContent=STAGES[si];
+        stage.style.animation='none';void stage.offsetWidth;stage.style.animation='';
+      }
+    },640);
+    var t0=performance.now(),DUR=2400;
+    (function zr(){
+      var p=Math.min((performance.now()-t0)/DUR,1),e=Math.pow(p,1.62);
+      R=R0*(1+60*e*e);
+      fg.style.strokeDashoffset=326.7*(1-p);
+      pct.textContent=Math.round(p*100);
+      if(p<1&&state==='zoom')requestAnimationFrame(zr);
+      else finish();
+    })();
+    function finish(){
+      clearInterval(stTimer);
+      stage.textContent='✓ 广州数字孪生场景就绪';
+      setTimeout(function(){
+        // 先让地球场景完整淡出，第三页（广州地图）保持隐藏，避免两个页面叠在一起
+        scene.classList.add('hide');
+        setTimeout(function(){
+          enterMain();
+          setTimeout(function(){state='done'},700);
+        },760);
+      },420);
+    }
+  }
+  document.getElementById('gsSkip').addEventListener('click',function(){
+    // 驾驶舱只能通过点击地球上的“广州市”进入；跳过按钮不再直接进入驾驶舱
+    showToast('请点击地球上的“广州市”进入驾驶舱');
+  });
+  // 严格保持流程：开场 → 地球 → 点击广州 → 驾驶舱
+  document.getElementById('gsSkip').style.display='none';
+  /* ---- 返回地球 ---- */
+  document.getElementById('btnGlobe').addEventListener('click',function(){
+    if(state!=='done')return;
+    exitMain();
+    tweens=[];state='idle';R=R0;vel=BASE;
+    rotLon=-GZ.lon-0.35;rotLat=0.32;
+    cosR=Math.cos(rotLat);sinR=Math.sin(rotLat);
+    document.getElementById('gsHint').style.display='';
+    document.getElementById('gsSkip').style.display='';
+    document.getElementById('gsLoading').classList.add('hidden');
+    scene.classList.remove('hide');
+    last=performance.now();
+    requestAnimationFrame(loop);
+  });
+})();
+/* ========== 开场进度 ========== */
+var intro=document.getElementById('intro'),
+    introVideo=document.getElementById('introVideo'),
+    introCopy=document.getElementById('introCopy'),
+    iPct=document.getElementById('introPct'),
+    iFill=document.getElementById('introFill');
+(function(){
+  // 前 5 秒只播放视频；第 5 秒才显示原有开场文字。
+  var t0=null;
+  setTimeout(function(){
+    introCopy.classList.add('show');
+    t0=performance.now();
+    function step(t){
+      if(!t0)t0=t;
+      var p=Math.min((t-t0)/1200,1);
+      iPct.textContent=Math.round(p*100);
+      iFill.style.width=(p*100)+'%';
+      if(p<1)requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  },5000);
+  setTimeout(function(){
+    intro.classList.add('hide');
+    if(introVideo){introVideo.pause();}
+    // 开场视频结束后只进入第二页地球，驾驶舱必须等用户点击地球上的广州后才能进入
+    exitMain();
+    document.getElementById('globeScene').classList.remove('hide');
+  },6900);
+})();
+})();
+</script>
+</body>
+</html>
+
+
